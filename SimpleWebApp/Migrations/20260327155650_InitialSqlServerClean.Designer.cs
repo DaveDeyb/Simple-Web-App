@@ -12,8 +12,8 @@ using SimpleWebApp.Data;
 namespace SimpleWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260327151317_InitialSqlServer")]
-    partial class InitialSqlServer
+    [Migration("20260327155650_InitialSqlServerClean")]
+    partial class InitialSqlServerClean
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
