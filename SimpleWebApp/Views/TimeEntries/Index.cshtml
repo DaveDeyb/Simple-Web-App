@@ -1,0 +1,51 @@
+@model SimpleWebApp.ViewModels.TimeEntriesViewModel
+
+@{
+    ViewData["Title"] = "Timesheet";
+}
+
+<h2>Timesheet</h2>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<form method="get" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-auto">
+        <input class="form-control" type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Load</button>
+    </div>
+</form>
+
+<form method="post" asp-action="Action" class="d-flex gap-2 flex-wrap mb-4">
+    @Html.AntiForgeryToken()
+    <button type="submit" name="entryType" value="ClockIn" class="btn btn-success">Clock In</button>
+    <button type="submit" name="entryType" value="BreakStart" class="btn btn-warning">Start Break</button>
+    <button type="submit" name="entryType" value="BreakEnd" class="btn btn-info">End Break</button>
+    <button type="submit" name="entryType" value="ClockOut" class="btn btn-danger">Clock Out</button>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Timestamp (UTC)</th>
+            <th>Type</th>
+            <th>Project</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var entry in Model.Entries)
+    {
+        <tr>
+            <td>@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            <td>@entry.EntryType</td>
+            <td>@entry.Project</td>
+            <td>@entry.Notes</td>
+        </tr>
+    }
+    </tbody>
+</table>
