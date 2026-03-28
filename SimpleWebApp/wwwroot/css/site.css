@@ -21,6 +21,361 @@ body {
   margin-bottom: 60px;
 }
 
+:root {
+  --tn-primary: #2563eb;
+  --tn-primary-strong: #1d4ed8;
+  --tn-accent: #06b6d4;
+  --tn-bg: #f0f7ff;
+  --tn-surface: #ffffff;
+  --tn-border: #d6e4ff;
+  --tn-text: #0f172a;
+  --tn-muted: #64748b;
+}
+
+.tn-dashboard {
+  color: var(--tn-text);
+}
+
+.tn-page-head {
+  margin-bottom: 1.5rem;
+}
+
+.tn-page-head h1 {
+  margin: 0 0 0.35rem;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.tn-page-head p {
+  margin: 0;
+  color: var(--tn-muted);
+}
+
+.tn-filterbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.tn-pill-group {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.tn-pill {
+  border: 1px solid var(--tn-border);
+  background: var(--tn-surface);
+  color: var(--tn-text);
+  border-radius: 0.65rem;
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tn-pill.active {
+  background: var(--tn-primary);
+  border-color: var(--tn-primary);
+  color: #fff;
+}
+
+.tn-date-form {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tn-outline-btn,
+.tn-primary-btn {
+  border-radius: 0.65rem;
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--tn-border);
+  background: var(--tn-surface);
+  color: var(--tn-text);
+}
+
+.tn-primary-btn {
+  border-color: var(--tn-primary);
+  background: var(--tn-primary);
+  color: #fff;
+}
+
+.tn-primary-btn:hover {
+  background: var(--tn-primary-strong);
+  border-color: var(--tn-primary-strong);
+}
+
+.tn-outline-btn:hover {
+  background: #eef5ff;
+}
+
+.tn-clock-card {
+  background: linear-gradient(135deg, #e0edff, #ddf7ff);
+  border: 1px solid var(--tn-border);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tn-clock-card h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.tn-clock-time {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-top: 0.45rem;
+}
+
+.tn-clock-status {
+  margin: 0.25rem 0;
+  color: var(--tn-muted);
+}
+
+.tn-clock-status span {
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+.tn-clock-status span.in {
+  color: var(--tn-primary);
+}
+
+.tn-clock-status span.break {
+  color: #ca8a04;
+}
+
+.tn-clock-status span.out {
+  color: var(--tn-muted);
+}
+
+.tn-clock-note {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--tn-muted);
+}
+
+.tn-clock-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tn-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tn-panel {
+  background: var(--tn-surface);
+  border: 1px solid var(--tn-border);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.tn-panel h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.tn-hours-chart {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.tn-bar-row {
+  position: relative;
+  background: #eef5ff;
+  border-radius: 999px;
+  height: 1.1rem;
+  overflow: hidden;
+}
+
+.tn-bar-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: calc(var(--tn-val, 0) * 10%);
+  background: linear-gradient(90deg, var(--tn-primary), var(--tn-accent));
+}
+
+.tn-bar-row::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 0.5rem;
+  top: -1.35rem;
+  font-size: 0.75rem;
+  color: var(--tn-muted);
+}
+
+.tn-hours-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+  border-top: 1px solid var(--tn-border);
+  padding-top: 0.8rem;
+}
+
+.tn-hours-meta span {
+  font-size: 0.75rem;
+  color: var(--tn-muted);
+  display: block;
+}
+
+.tn-hours-meta strong {
+  font-size: 1.05rem;
+}
+
+.tn-whosin .tn-mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.tn-whosin .tn-mini-stats div {
+  border-radius: 0.6rem;
+  padding: 0.45rem;
+  text-align: center;
+  background: #f8fbff;
+  border: 1px solid var(--tn-border);
+}
+
+.tn-whosin .tn-mini-stats strong {
+  display: block;
+  color: var(--tn-primary);
+}
+
+.tn-whosin ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.tn-whosin li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem;
+  border-radius: 0.55rem;
+  background: #f8fbff;
+  font-size: 0.9rem;
+}
+
+.tn-whosin li em {
+  margin-left: auto;
+  font-style: normal;
+  color: var(--tn-muted);
+  font-size: 0.8rem;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.in {
+  background: #16a34a;
+}
+
+.dot.break {
+  background: #f59e0b;
+}
+
+.dot.out {
+  background: #94a3b8;
+}
+
+.tn-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tn-kpi-card {
+  border: 1px solid var(--tn-border);
+  border-radius: 0.85rem;
+  background: var(--tn-surface);
+  padding: 0.85rem;
+}
+
+.tn-kpi-card span {
+  font-size: 0.78rem;
+  color: var(--tn-muted);
+  display: block;
+}
+
+.tn-kpi-card strong {
+  display: block;
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.tn-kpi-card small {
+  color: var(--tn-muted);
+}
+
+.tn-kpi-card .tn-primary {
+  color: var(--tn-primary);
+}
+
+.tn-kpi-card .tn-accent {
+  color: var(--tn-accent);
+}
+
+.tn-activity-panel table thead th {
+  font-size: 0.78rem;
+  color: var(--tn-muted);
+  border-top: none;
+}
+
+@media (max-width: 992px) {
+  .tn-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tn-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .tn-filterbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tn-date-form {
+    margin-left: 0;
+  }
+
+  .tn-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tn-clock-time {
+    font-size: 1.8rem;
+  }
+}
+
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;

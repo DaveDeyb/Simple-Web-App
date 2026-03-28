@@ -1,51 +1,283 @@
 @model SimpleWebApp.ViewModels.TimeEntriesViewModel
 
 @{
-    ViewData["Title"] = "Timesheet";
-}
+    ViewData["Title"] = "Dashboard";
 
-<h2>Timesheet</h2>
+    var ascendingEntries = Model.Entries.OrderBy(e => e.Timestamp).ToList();
+    var latestEntry = Model.Entries.OrderByDescending(e => e.Timestamp).FirstOrDefault();
 
-@if (TempData["Error"] is string error)
-{
-    <div class="alert alert-danger">@error</div>
-}
-
-<form method="get" asp-action="Index" class="row g-2 mb-3">
-    <div class="col-auto">
-        <input class="form-control" type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-secondary">Load</button>
-    </div>
-</form>
-
-<form method="post" asp-action="Action" class="d-flex gap-2 flex-wrap mb-4">
-    @Html.AntiForgeryToken()
-    <button type="submit" name="entryType" value="ClockIn" class="btn btn-success">Clock In</button>
-    <button type="submit" name="entryType" value="BreakStart" class="btn btn-warning">Start Break</button>
-    <button type="submit" name="entryType" value="BreakEnd" class="btn btn-info">End Break</button>
-    <button type="submit" name="entryType" value="ClockOut" class="btn btn-danger">Clock Out</button>
-</form>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Timestamp (UTC)</th>
-            <th>Type</th>
-            <th>Project</th>
-            <th>Notes</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var entry in Model.Entries)
+    var status = "Clocked Out";
+    if (latestEntry is not null)
     {
-        <tr>
-            <td>@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
-            <td>@entry.EntryType</td>
-            <td>@entry.Project</td>
-            <td>@entry.Notes</td>
-        </tr>
+        status = latestEntry.EntryType.ToString() switch
+        {
+            "ClockIn" => "Clocked In",
+            "BreakStart" => "On Break",
+            "BreakEnd" => "Clocked In",
+            _ => "Clocked Out"
+        };
     }
-    </tbody>
-</table>
+
+    var trackedSeconds = 0d;
+    DateTime? activeClockIn = null;
+    DateTime? breakStart = null;
+
+    foreach (var entry in ascendingEntries)
+    {
+        switch (entry.EntryType)
+        {
+            case SimpleWebApp.Models.TimeEntryType.ClockIn:
+                activeClockIn = entry.Timestamp;
+                breakStart = null;
+                break;
+            case SimpleWebApp.Models.TimeEntryType.BreakStart:
+                if (activeClockIn.HasValue)
+                {
+                    trackedSeconds += (entry.Timestamp - activeClockIn.Value).TotalSeconds;
+                    activeClockIn = null;
+                    breakStart = entry.Timestamp;
+                }
+                break;
+            case SimpleWebApp.Models.TimeEntryType.BreakEnd:
+                if (breakStart.HasValue)
+                {
+                    breakStart = null;
+                    activeClockIn = entry.Timestamp;
+                }
+                break;
+            case SimpleWebApp.Models.TimeEntryType.ClockOut:
+                if (activeClockIn.HasValue)
+                {
+                    trackedSeconds += (entry.Timestamp - activeClockIn.Value).TotalSeconds;
+                    activeClockIn = null;
+                }
+                breakStart = null;
+                break;
+        }
+    }
+
+    if (activeClockIn.HasValue && Model.SelectedDate.Date == DateTime.UtcNow.Date)
+    {
+        trackedSeconds += (DateTime.UtcNow - activeClockIn.Value).TotalSeconds;
+    }
+
+    if (trackedSeconds < 0)
+    {
+        trackedSeconds = 0;
+    }
+
+    var trackedHours = trackedSeconds / 3600d;
+    var trackedHoursText = trackedHours.ToString("0.0");
+    var currentlyClockedIn = status == "Clocked In" || status == "On Break";
+}
+
+<div class="tn-dashboard">
+    <section class="tn-page-head">
+        <h1>Dashboard</h1>
+        <p>Monitor your team's productivity and time tracking.</p>
+    </section>
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger mb-4">@error</div>
+    }
+
+    <section class="tn-filterbar">
+        <div class="tn-pill-group" id="tn-timeframe">
+            <button type="button" class="tn-pill active" data-frame="day">Day</button>
+            <button type="button" class="tn-pill" data-frame="week">Week</button>
+        </div>
+
+        <div class="tn-pill-group" id="tn-viewmode">
+            <button type="button" class="tn-pill active">Organization</button>
+            <button type="button" class="tn-pill">Personal</button>
+        </div>
+
+        <form method="get" asp-action="Index" class="tn-date-form">
+            <input class="form-control" type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <button type="submit" class="tn-outline-btn">Load</button>
+        </form>
+    </section>
+
+    <section class="tn-clock-card">
+        <div>
+            <h2>Your Time Clock</h2>
+            <div class="tn-clock-time" id="tn-clock-time">00:00:00</div>
+            <p class="tn-clock-status">
+                Status:
+                <span class="@(status == "Clocked In" ? "in" : status == "On Break" ? "break" : "out")">@status</span>
+            </p>
+            <p class="tn-clock-note">Today: @trackedHoursText hours logged</p>
+        </div>
+        <form method="post" asp-action="Action" class="tn-clock-actions">
+            @Html.AntiForgeryToken()
+            <button type="submit" name="entryType" value="ClockIn" class="tn-primary-btn">Clock In</button>
+            <button type="submit" name="entryType" value="BreakStart" class="tn-outline-btn">Break</button>
+            <button type="submit" name="entryType" value="BreakEnd" class="tn-outline-btn">Resume</button>
+            <button type="submit" name="entryType" value="ClockOut" class="tn-outline-btn">Clock Out</button>
+        </form>
+    </section>
+
+    <section class="tn-main-grid">
+        <article class="tn-panel tn-chart-panel">
+            <h3>Tracked Hours</h3>
+            <div id="tn-hours-chart" class="tn-hours-chart" data-frame="day">
+                <div class="tn-bar-row" data-day="Mon" data-week="8.0" data-dayval="1.0"></div>
+                <div class="tn-bar-row" data-day="Tue" data-week="8.5" data-dayval="1.0"></div>
+                <div class="tn-bar-row" data-day="Wed" data-week="8.0" data-dayval="1.0"></div>
+                <div class="tn-bar-row" data-day="Thu" data-week="8.0" data-dayval="1.0"></div>
+                <div class="tn-bar-row" data-day="Fri" data-week="7.5" data-dayval="1.0"></div>
+                <div class="tn-bar-row" data-day="Sat" data-week="0.0" data-dayval="0.0"></div>
+                <div class="tn-bar-row" data-day="Sun" data-week="0.0" data-dayval="0.0"></div>
+            </div>
+            <div class="tn-hours-meta">
+                <div>
+                    <span>Total Hours</span>
+                    <strong id="tn-total-hours">40.0h</strong>
+                </div>
+                <div>
+                    <span>Overtime</span>
+                    <strong id="tn-overtime">2.0h</strong>
+                </div>
+                <div>
+                    <span>Breaks</span>
+                    <strong id="tn-breaks">3.5h</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="tn-panel tn-whosin">
+            <h3>Who's In/Out</h3>
+            <div class="tn-mini-stats">
+                <div><strong>8</strong><span>In</span></div>
+                <div><strong>1</strong><span>Break</span></div>
+                <div><strong>3</strong><span>Out</span></div>
+            </div>
+            <ul>
+                <li><span class="dot in"></span> Sarah Johnson <em>In</em></li>
+                <li><span class="dot in"></span> Michael Chen <em>In</em></li>
+                <li><span class="dot break"></span> Emma Davis <em>Break</em></li>
+                <li><span class="dot in"></span> James Wilson <em>In</em></li>
+                <li><span class="dot out"></span> David Martinez <em>Out</em></li>
+            </ul>
+        </article>
+    </section>
+
+    <section class="tn-kpi-grid">
+        <article class="tn-kpi-card">
+            <span>Total Hours Tracked</span>
+            <strong>@trackedHoursText h</strong>
+            <small>Selected day</small>
+        </article>
+        <article class="tn-kpi-card">
+            <span>Team Members</span>
+            <strong>12</strong>
+            <small>Active today</small>
+        </article>
+        <article class="tn-kpi-card">
+            <span>Currently Clocked In</span>
+            <strong class="tn-primary">@(currentlyClockedIn ? "1" : "0")</strong>
+            <small>Current account</small>
+        </article>
+        <article class="tn-kpi-card">
+            <span>Overtime</span>
+            <strong class="tn-accent">0.5h</strong>
+            <small>This week</small>
+        </article>
+    </section>
+
+    <section class="tn-panel tn-activity-panel">
+        <h3>Recent Time Entries</h3>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Timestamp (UTC)</th>
+                        <th>Type</th>
+                        <th>Project</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in Model.Entries)
+                {
+                    <tr>
+                        <td>@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@entry.EntryType</td>
+                        <td>@entry.Project</td>
+                        <td>@entry.Notes</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const timeframeContainer = document.getElementById('tn-timeframe');
+            const viewmodeContainer = document.getElementById('tn-viewmode');
+            const chart = document.getElementById('tn-hours-chart');
+            const totalHours = document.getElementById('tn-total-hours');
+            const overtime = document.getElementById('tn-overtime');
+            const breaks = document.getElementById('tn-breaks');
+
+            function renderChart(frame) {
+                if (!chart) return;
+                chart.dataset.frame = frame;
+                const rows = chart.querySelectorAll('.tn-bar-row');
+                let total = 0;
+                rows.forEach((row) => {
+                    const value = parseFloat(frame === 'week' ? row.dataset.week : row.dataset.dayval);
+                    total += value;
+                    row.style.setProperty('--tn-val', String(Math.max(0, Math.min(10, value))));
+                    row.setAttribute('data-label', frame === 'week' ? row.dataset.day : row.dataset.day + ' hour');
+                });
+
+                if (totalHours) totalHours.textContent = total.toFixed(1) + 'h';
+                if (overtime) overtime.textContent = (frame === 'week' ? '2.0h' : '0.5h');
+                if (breaks) breaks.textContent = (frame === 'week' ? '3.5h' : '0.5h');
+            }
+
+            function togglePills(container, onClick) {
+                if (!container) return;
+                container.querySelectorAll('button').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        container.querySelectorAll('button').forEach((x) => x.classList.remove('active'));
+                        btn.classList.add('active');
+                        onClick(btn);
+                    });
+                });
+            }
+
+            togglePills(timeframeContainer, (btn) => renderChart(btn.dataset.frame || 'day'));
+            togglePills(viewmodeContainer, () => {});
+            renderChart('day');
+
+            const clockEl = document.getElementById('tn-clock-time');
+            const initialSeconds = Math.floor(@trackedSeconds);
+            let seconds = initialSeconds;
+
+            function formatTime(s) {
+                const h = Math.floor(s / 3600).toString().padStart(2, '0');
+                const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+                const sec = Math.floor(s % 60).toString().padStart(2, '0');
+                return h + ':' + m + ':' + sec;
+            }
+
+            function tick() {
+                if (!clockEl) return;
+                clockEl.textContent = formatTime(seconds);
+                seconds += 1;
+            }
+
+            tick();
+            const currentlyRunning = '@(currentlyClockedIn ? "true" : "false")' === 'true';
+            if (currentlyRunning) {
+                window.setInterval(tick, 1000);
+            }
+        })();
+    </script>
+}
