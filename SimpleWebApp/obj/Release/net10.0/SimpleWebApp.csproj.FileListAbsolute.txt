@@ -224,3 +224,9 @@ C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Release\net10
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Release\net10.0\SimpleWebApp.pdb
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Release\net10.0\SimpleWebApp.genruntimeconfig.cache
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Release\net10.0\ref\SimpleWebApp.dll
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Release\net10.0\publish\web.config
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Release\net10.0\publish\appsettings.Development.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Release\net10.0\publish\appsettings.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Release\net10.0\publish\SimpleWebApp.deps.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Release\net10.0\publish\SimpleWebApp.runtimeconfig.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Release\net10.0\publish\SimpleWebApp.staticwebassets.endpoints.json

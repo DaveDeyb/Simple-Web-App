@@ -1,6 +1,12 @@
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\SimpleWebApp.exe
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\publish\web.config
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\appsettings.Development.json
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\appsettings.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\publish\appsettings.Development.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\publish\appsettings.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\publish\SimpleWebApp.deps.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\publish\SimpleWebApp.runtimeconfig.json
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\publish\SimpleWebApp.staticwebassets.endpoints.json
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\SimpleWebApp.dll
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\SimpleWebApp.runtimeconfig.json
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\publish\SimpleWebApp.pdb
