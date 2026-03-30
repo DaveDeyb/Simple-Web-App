@@ -22,11 +22,22 @@ namespace SimpleWebApp.Services
 
             return (lastEntry?.EntryType, type) switch
             {
+                // Start work from no entry or after clocking out
                 (null, TimeEntryType.ClockIn) => true,
-                (TimeEntryType.ClockIn, TimeEntryType.BreakStart) => true,
-                (TimeEntryType.BreakStart, TimeEntryType.BreakEnd) => true,
-                (TimeEntryType.BreakEnd, TimeEntryType.ClockOut) => true,
                 (TimeEntryType.ClockOut, TimeEntryType.ClockIn) => true,
+                
+                // From ClockIn: can take break or clock out
+                (TimeEntryType.ClockIn, TimeEntryType.BreakStart) => true,
+                (TimeEntryType.ClockIn, TimeEntryType.ClockOut) => true,
+                
+                // From BreakStart: must end break
+                (TimeEntryType.BreakStart, TimeEntryType.BreakEnd) => true,
+                
+                // From BreakEnd: can clock out, start new break, or resume (should be rare)
+                (TimeEntryType.BreakEnd, TimeEntryType.ClockOut) => true,
+                (TimeEntryType.BreakEnd, TimeEntryType.ClockIn) => true,
+                (TimeEntryType.BreakEnd, TimeEntryType.BreakStart) => true,
+                
                 _ => false
             };
         }

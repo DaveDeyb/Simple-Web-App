@@ -1,0 +1,77 @@
+@model AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="tn-admin-dashboard">
+    <!-- Key Metrics -->
+    <div class="tn-admin-metrics">
+        <div class="tn-metric-card">
+            <div class="tn-metric-header">
+                <h3>Total Users</h3>
+                <span class="tn-metric-icon">👥</span>
+            </div>
+            <div class="tn-metric-value">@Model.TotalUsers</div>
+            <div class="tn-metric-footer">Registered users</div>
+        </div>
+
+        <div class="tn-metric-card">
+            <div class="tn-metric-header">
+                <h3>Active Groups</h3>
+                <span class="tn-metric-icon">👫</span>
+            </div>
+            <div class="tn-metric-value">@Model.ActiveGroups</div>
+            <div class="tn-metric-footer">Teams created</div>
+        </div>
+
+        <div class="tn-metric-card">
+            <div class="tn-metric-header">
+                <h3>Hours Tracked</h3>
+                <span class="tn-metric-icon">⏱️</span>
+            </div>
+            <div class="tn-metric-value">@Model.TotalHoursTracked<span class="tn-unit">h</span></div>
+            <div class="tn-metric-footer">Total tracked</div>
+        </div>
+
+        <div class="tn-metric-card">
+            <div class="tn-metric-header">
+                <h3>System Status</h3>
+                <span class="tn-metric-icon">✅</span>
+            </div>
+            <div class="tn-metric-value success">Active</div>
+            <div class="tn-metric-footer">All systems operational</div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="tn-admin-panel">
+        <h2>Recent Activity</h2>
+        <div class="tn-activity-list">
+            @foreach (var activity in Model.RecentActivity)
+            {
+                <div class="tn-activity-item">
+                    <span class="tn-activity-dot"></span>
+                    <span class="tn-activity-text">@activity</span>
+                    <span class="tn-activity-time">Just now</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="tn-admin-panel">
+        <h2>Quick Actions</h2>
+        <div class="tn-actions-grid">
+            <a asp-controller="Admin" asp-action="Users" class="tn-action-btn">
+                <span class="tn-action-icon">👥</span>
+                <span>Manage Users</span>
+            </a>
+            <a asp-controller="Admin" asp-action="Groups" class="tn-action-btn">
+                <span class="tn-action-icon">👫</span>
+                <span>Manage Groups</span>
+            </a>
+        </div>
+    </div>
+</div>

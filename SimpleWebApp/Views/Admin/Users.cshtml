@@ -1,0 +1,79 @@
+@model AdminUsersViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="tn-admin-users">
+    <div class="tn-admin-panel">
+        <div class="tn-panel-header">
+            <h2>User Management</h2>
+        </div>
+
+        <!-- Search -->
+        <form method="get" asp-action="Users" class="tn-search-form">
+            <input type="text" name="search" placeholder="Search by name or email..." value="@Model.SearchTerm" class="tn-search-input" />
+            <button type="submit" class="tn-search-btn">🔍 Search</button>
+        </form>
+
+        <!-- Users Table -->
+        <div class="tn-table-responsive">
+            <table class="tn-users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Admin</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Users.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="5" class="tn-empty-message">No users found</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="tn-user-cell">
+                                        <span class="tn-user-avatar">@user.FullName.First()</span>
+                                        <span>@user.FullName</span>
+                                    </div>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>
+                                    @if (user.IsAdmin)
+                                    {
+                                        <span class="tn-badge tn-badge-primary">Admin</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tn-badge tn-badge-secondary">User</span>
+                                    }
+                                </td>
+                                <td>@user.UserName</td>
+                                <td>
+                                    <div class="tn-actions">
+                                        <button class="tn-action-icon" title="View">👁️</button>
+                                        <button class="tn-action-icon" title="Edit">✏️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tn-table-info">
+            Total Users: <strong>@Model.Users.Count</strong>
+        </div>
+    </div>
+</div>

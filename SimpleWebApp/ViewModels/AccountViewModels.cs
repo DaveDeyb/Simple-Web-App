@@ -20,6 +20,9 @@ namespace SimpleWebApp.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Display(Name = "Register as Administrator")]
+        public bool IsAdmin { get; set; } = false;
     }
 
     public class LoginViewModel

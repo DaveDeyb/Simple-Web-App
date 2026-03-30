@@ -8,7 +8,10 @@
 <div class="tn-auth-page">
     <div class="tn-auth-wrap">
         <div class="tn-auth-head">
-            <a asp-controller="Home" asp-action="Index" class="tn-auth-logo">🕐</a>
+            <a asp-controller="Home" asp-action="Index" class="tn-auth-logo">
+                <img src="~/img/logo.svg" alt="Time Nest Logo" />
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="tn-back-btn">← Back</a>
             <h1>Welcome Back</h1>
             <p>Sign in to your Time Nest account</p>
         </div>
@@ -38,9 +41,6 @@
                 </div>
 
                 <button type="submit" class="tn-btn tn-btn-primary tn-full">Sign In</button>
-
-                <div class="tn-divider"><span>Or continue with</span></div>
-                <button type="button" class="tn-btn tn-btn-outline tn-full">Google</button>
             </form>
         </div>
 

@@ -106,14 +106,20 @@ body {
 }
 
 .tn-logo-mark {
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2.8rem;
+  height: 2.8rem;
   border-radius: 0.55rem;
   background: var(--tn-primary);
   color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.tn-logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .tn-nav-right {
@@ -300,8 +306,8 @@ body {
 }
 
 .tn-auth-logo {
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 0.75rem;
   background: var(--tn-primary);
   color: #fff;
@@ -313,6 +319,12 @@ body {
   margin-bottom: 0.6rem;
 }
 
+.tn-auth-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .tn-auth-head h1 {
   margin: 0;
   font-size: 1.9rem;
@@ -321,6 +333,29 @@ body {
 .tn-auth-head p {
   margin: 0.25rem 0 0;
   color: var(--tn-muted);
+}
+
+.tn-back-btn {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  padding: 0.5rem 0.875rem;
+  background: var(--tn-surface);
+  color: var(--tn-primary);
+  text-decoration: none;
+  border-radius: 0.5rem;
+  border: 1px solid var(--tn-border);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.tn-back-btn:hover {
+  background: var(--tn-primary);
+  color: #fff;
+  border-color: var(--tn-primary);
 }
 
 .tn-auth-card {
@@ -381,6 +416,38 @@ body {
   margin-top: 0.8rem;
   color: var(--tn-muted);
   font-size: 0.92rem;
+}
+
+.tn-admin-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f0f7ff;
+  border: 1px solid #d6e4ff;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin: 0.75rem 0;
+  transition: all 0.2s ease;
+}
+
+.tn-admin-checkbox:hover {
+  background: #e2eeff;
+  border-color: #bfdbfe;
+}
+
+.tn-admin-checkbox input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  accent-color: var(--tn-primary);
+}
+
+.tn-admin-checkbox span {
+  font-weight: 500;
+  color: var(--tn-text);
+  line-height: 1.2;
+  user-select: none;
 }
 
 .tn-auth-bottom a {

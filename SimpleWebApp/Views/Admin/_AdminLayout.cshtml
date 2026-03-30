@@ -1,0 +1,94 @@
+@{
+    ViewData["AdminLayout"] = true;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin - Time Nest</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/admin.css" />
+</head>
+<body>
+    <div class="tn-admin-container">
+        <!-- Sidebar -->
+        <aside class="tn-admin-sidebar">
+            <div class="tn-admin-logo">
+                <div class="tn-logo-mark">
+                    <img src="~/img/logo.svg" alt="Time Nest Logo" />
+                </div>
+                <div>
+                    <h5>Time Nest</h5>
+                    <small>Admin Panel</small>
+                </div>
+            </div>
+
+            <nav class="tn-admin-nav">
+                <a asp-controller="Admin" asp-action="Index" class="tn-admin-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                    <span class="tn-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Users" class="tn-admin-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Users" ? "active" : "")">
+                    <span class="tn-icon">👥</span>
+                    <span>Users</span>
+                </a>
+                <a asp-controller="Admin" asp-action="Groups" class="tn-admin-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Groups" ? "active" : "")">
+                    <span class="tn-icon">👫</span>
+                    <span>Groups</span>
+                </a>
+            </nav>
+
+            <div class="tn-admin-logout">
+                <form method="post" asp-controller="Account" asp-action="Logout">
+                    <button type="submit" class="tn-admin-logout-btn">
+                        <span class="tn-icon">🚪</span>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="tn-admin-main">
+            <!-- Header -->
+            <header class="tn-admin-header">
+                <div class="tn-admin-title">
+                    <h1>@ViewData["Title"]</h1>
+                </div>
+                <div class="tn-admin-user">
+                    <button class="tn-admin-user-btn">
+                        <span class="tn-avatar">@(User.Identity?.Name?.First().ToString().ToUpper())</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="tn-admin-content">
+                @if (TempData["Success"] is string success)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @success
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (TempData["Error"] is string error)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+</body>
+</html>
