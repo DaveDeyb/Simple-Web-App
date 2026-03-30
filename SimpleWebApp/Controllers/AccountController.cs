@@ -29,6 +29,11 @@ namespace SimpleWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (!model.AgreeToTerms)
+            {
+                ModelState.AddModelError(nameof(model.AgreeToTerms), "You must agree to the Terms of Service and Privacy Policy");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -66,10 +71,10 @@ namespace SimpleWebApp.Controllers
 
             if (user.IsAdmin)
             {
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Choice", "Group");
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Join", "Group");
         }
 
         [HttpGet]
@@ -114,10 +119,10 @@ namespace SimpleWebApp.Controllers
 
             if (user.IsAdmin)
             {
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction("Choice", "Group");
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Join", "Group");
         }
 
         [HttpPost]

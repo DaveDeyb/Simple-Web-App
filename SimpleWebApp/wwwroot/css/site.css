@@ -409,6 +409,14 @@ body {
   border-color: var(--tn-border);
 }
 
+.tn-input.input-validation-error {
+  border-color: #ef4444;
+}
+
+.field-validation-error {
+  color: #ef4444;
+}
+
 .tn-auth-row {
   display: flex;
   justify-content: space-between;
@@ -497,10 +505,23 @@ body {
   gap: 0.45rem;
   font-size: 0.86rem;
   color: var(--tn-muted);
+  transition: color 0.2s ease;
 }
 
 .tn-terms input {
   margin-top: 0.2rem;
+}
+
+.tn-terms.is-invalid {
+  color: #ef4444;
+}
+
+.tn-terms.is-invalid span {
+  color: #ef4444;
+}
+
+.tn-terms.is-invalid a {
+  color: #ef4444;
 }
 
 .tn-dashboard {

@@ -1,0 +1,226 @@
+@model SimpleWebApp.ViewModels.GroupDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Group: {Model.GroupName}";
+}
+
+<div class="tn-container">
+    <div class="tn-card">
+        <div class="tn-card-header">
+            <div>
+                <h1 class="tn-heading-lg">@Model.GroupName</h1>
+                <p class="tn-text-muted">@Model.GroupDescription</p>
+            </div>
+            <div class="tn-group-info">
+                <div class="tn-info-item">
+                    <strong>Owner:</strong> @Model.OwnerName
+                </div>
+                <div class="tn-info-item">
+                    <strong>Your Role:</strong> 
+                    <span class="tn-badge tn-badge-@(Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
+                        @Model.UserRole
+                    </span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.InviteCode))
+                {
+                    <div class="tn-info-item">
+                        <strong>Invite Code:</strong> 
+                        <code class="tn-code">@Model.InviteCode</code>
+                        <button type="button" class="tn-btn tn-btn-sm tn-btn-ghost" onclick="copyToClipboard('@Model.InviteCode')">Copy</button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Members Section -->
+        <div class="tn-section">
+            <h2 class="tn-heading-md">Team Members (@Model.Members.Count)</h2>
+            @if (Model.Members.Count == 0)
+            {
+                <p class="tn-text-muted">No members yet.</p>
+            }
+            else
+            {
+                <div class="tn-table-container">
+                    <table class="tn-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                @if (Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin)
+                                {
+                                    <th>Actions</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var member in Model.Members)
+                            {
+                                <tr>
+                                    <td>@member.UserName</td>
+                                    <td>
+                                        <span class="tn-badge tn-badge-@(member.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : member.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
+                                            @member.Role
+                                        </span>
+                                    </td>
+                                    @if (Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin)
+                                    {
+                                        <td>
+                                            <form asp-action="RemoveMember" method="post" style="display: inline;">
+                                                <input type="hidden" name="memberId" value="@member.MemberId" />
+                                                <input type="hidden" name="groupId" value="@Model.GroupId" />
+                                                <button type="submit" class="tn-btn tn-btn-sm tn-btn-danger" onclick="return confirm('Remove this member?')">Remove</button>
+                                            </form>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Pending Approvals Section (only for Admin) -->
+        @if (Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin && Model.PendingApprovals.Count > 0)
+        {
+            <div class="tn-section tn-alert tn-alert-info">
+                <h2 class="tn-heading-md">Pending Admin Approvals (@Model.PendingApprovals.Count)</h2>
+                <p>These admins are waiting for approval to oversee your group.</p>
+                
+                <div class="tn-table-container">
+                    <table class="tn-table">
+                        <thead>
+                            <tr>
+                                <th>Admin Name</th>
+                                <th>Requested</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pending in Model.PendingApprovals)
+                            {
+                                <tr>
+                                    <td>@pending.UserName</td>
+                                    <td>@pending.RequestedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td>
+                                        <form asp-action="ApproveMember" method="post" style="display: inline;">
+                                            <input type="hidden" name="memberId" value="@pending.MemberId" />
+                                            <input type="hidden" name="groupId" value="@Model.GroupId" />
+                                            <button type="submit" class="tn-btn tn-btn-sm tn-btn-success">Approve</button>
+                                        </form>
+                                        <form asp-action="RejectMember" method="post" style="display: inline;">
+                                            <input type="hidden" name="memberId" value="@pending.MemberId" />
+                                            <input type="hidden" name="groupId" value="@Model.GroupId" />
+                                            <button type="submit" class="tn-btn tn-btn-sm tn-btn-danger" onclick="return confirm('Reject this approval request?')">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <div class="tn-form-actions">
+            <a asp-action="MyGroups" class="tn-btn tn-btn-secondary">Back to Groups</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.tn-group-info {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.tn-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.tn-code {
+    background-color: var(--tn-bg-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: 600;
+}
+
+.tn-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--tn-border);
+}
+
+.tn-section:last-child {
+    border-bottom: none;
+}
+
+.tn-table-container {
+    overflow-x: auto;
+}
+
+.tn-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tn-table thead {
+    background-color: var(--tn-bg-secondary);
+}
+
+.tn-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--tn-text);
+    border-bottom: 2px solid var(--tn-border);
+}
+
+.tn-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--tn-border);
+}
+
+.tn-table tbody tr:hover {
+    background-color: var(--tn-bg-secondary);
+}
+
+.tn-btn-ghost {
+    background: none;
+    color: var(--tn-primary);
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+
+.tn-btn-ghost:hover {
+    text-decoration: underline;
+}
+
+.tn-alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.tn-alert-info {
+    background-color: #dbeafe;
+    border-left: 4px solid var(--tn-primary);
+    color: #1e40af;
+}
+</style>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Invite code copied to clipboard!');
+    });
+}
+</script>

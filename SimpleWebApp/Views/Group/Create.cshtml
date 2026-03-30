@@ -1,0 +1,39 @@
+@model SimpleWebApp.Models.Group
+
+@{
+    ViewData["Title"] = "Create Group";
+}
+
+<div class="tn-container">
+    <div class="tn-card" style="max-width: 600px; margin: 3rem auto;">
+        <div class="tn-card-header">
+            <h1 class="tn-heading-lg">Create a New Group</h1>
+            <p class="tn-text-muted">Set up your team and start tracking time together</p>
+        </div>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="tn-alert tn-alert-danger"></div>
+
+            <div class="tn-form-group">
+                <label asp-for="Name" class="tn-label">Group Name</label>
+                <input asp-for="Name" class="tn-input" placeholder="e.g., Frontend Team" required />
+                <span asp-validation-for="Name" class="tn-error"></span>
+            </div>
+
+            <div class="tn-form-group">
+                <label asp-for="Description" class="tn-label">Description (optional)</label>
+                <textarea asp-for="Description" class="tn-input" placeholder="Describe your group..." rows="3"></textarea>
+                <span asp-validation-for="Description" class="tn-error"></span>
+            </div>
+
+            <div class="tn-form-actions">
+                <button type="submit" class="tn-btn tn-btn-primary">Create Group</button>
+                <a asp-action="MyGroups" class="tn-btn tn-btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

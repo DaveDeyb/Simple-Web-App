@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/mDD/KLRtF8=",
+  "dgSpecHash": "nvM77uouEVo=",
   "success": true,
-  "projectFilePath": "C:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj",
+  "projectFilePath": "c:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\LYEuropa\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\LYEuropa\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",

@@ -1,0 +1,138 @@
+@model List<SimpleWebApp.ViewModels.MyGroupsViewModel>
+
+@{
+    ViewData["Title"] = "My Groups";
+}
+
+<div class="tn-container">
+    <div class="tn-page-header">
+        <div>
+            <h1 class="tn-heading-lg">My Groups</h1>
+            <p class="tn-text-muted">Manage and join groups to track time with your team</p>
+        </div>
+        <div class="tn-btn-group">
+            <a asp-controller="Group" asp-action="Create" class="tn-btn tn-btn-primary">+ Create Group</a>
+            <a asp-controller="Group" asp-action="Join" class="tn-btn tn-btn-secondary">Join Group</a>
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="tn-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="tn-empty-icon">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <h2>No groups yet</h2>
+            <p>Create or join a group to get started with team time tracking.</p>
+        </div>
+    }
+    else
+    {
+        <div class="tn-grid" style="--columns: auto-fit; --min-width: 300px;">
+            @foreach (var group in Model)
+            {
+                <div class="tn-card tn-card-hover">
+                    <div class="tn-card-header">
+                        <h3 class="tn-heading-md">@group.GroupName</h3>
+                        <span class="tn-badge tn-badge-@(group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
+                            @group.Role
+                        </span>
+                    </div>
+                    <p class="tn-text-muted">@group.GroupDescription</p>
+                    <div class="tn-card-meta">
+                        <small>👤 @group.OwnerName</small>
+                        <small>👥 @group.MemberCount members</small>
+                    </div>
+                    <a asp-controller="Group" asp-action="Details" asp-route-id="@group.GroupId" class="tn-btn tn-btn-secondary tn-btn-sm">View Details</a>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+.tn-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.tn-btn-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.tn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--min-width, 300px), 1fr));
+    gap: 1.5rem;
+}
+
+.tn-card-hover {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tn-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.tn-card-meta {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+}
+
+.tn-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--tn-text-muted);
+}
+
+.tn-empty-icon {
+    margin-bottom: 1rem;
+    color: var(--tn-border);
+}
+
+.tn-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tn-badge-primary {
+    background-color: var(--tn-primary);
+    color: white;
+}
+
+.tn-badge-accent {
+    background-color: var(--tn-accent);
+    color: white;
+}
+
+.tn-badge-secondary {
+    background-color: var(--tn-border);
+    color: var(--tn-text);
+}
+
+@@media (max-width: 768px) {
+    .tn-page-header {
+        flex-direction: column;
+    }
+    
+    .tn-btn-group {
+        width: 100%;
+    }
+    
+    .tn-btn-group .tn-btn {
+        flex: 1;
+    }
+}
+</style>

@@ -23,6 +23,9 @@ namespace SimpleWebApp.ViewModels
 
         [Display(Name = "Register as Administrator")]
         public bool IsAdmin { get; set; } = false;
+
+        [Display(Name = "I agree to the Terms of Service and Privacy Policy")]
+        public bool AgreeToTerms { get; set; } = false;
     }
 
     public class LoginViewModel

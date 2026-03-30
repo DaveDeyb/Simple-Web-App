@@ -1,0 +1,152 @@
+@model SimpleWebApp.ViewModels.PendingApprovalsPageViewModel
+
+@{
+    ViewData["Title"] = "Pending Approvals";
+}
+
+<div class="tn-container">
+    <div class="tn-card">
+        <div class="tn-card-header">
+            <h1 class="tn-heading-lg">Pending Admin Approvals</h1>
+            <p class="tn-text-muted">Group: @Model.GroupName</p>
+        </div>
+
+        @if (Model.PendingApprovals.Count == 0)
+        {
+            <div class="tn-empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h2>All approved!</h2>
+                <p>There are no pending admin approvals at this moment.</p>
+            </div>
+        }
+        else
+        {
+            <div class="tn-alert tn-alert-info">
+                <p>You have <strong>@Model.PendingApprovals.Count</strong> pending admin request(s) waiting for your approval.</p>
+            </div>
+
+            <div class="tn-approval-list">
+                @foreach (var request in Model.PendingApprovals)
+                {
+                    <div class="tn-approval-item">
+                        <div class="tn-approval-info">
+                            <h3 class="tn-heading-sm">@request.UserName</h3>
+                            <p class="tn-text-muted">Requested on @request.RequestedAt.ToString("MMMM dd, yyyy 'at' HH:mm")</p>
+                        </div>
+                        <div class="tn-approval-actions">
+                            <form asp-action="ApproveMember" method="post" style="display: inline;">
+                                <input type="hidden" name="memberId" value="@request.MemberId" />
+                                <input type="hidden" name="groupId" value="@Model.GroupId" />
+                                <button type="submit" class="tn-btn tn-btn-success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Approve
+                                </button>
+                            </form>
+                            <form asp-action="RejectMember" method="post" style="display: inline;">
+                                <input type="hidden" name="memberId" value="@request.MemberId" />
+                                <input type="hidden" name="groupId" value="@Model.GroupId" />
+                                <button type="submit" class="tn-btn tn-btn-danger" onclick="return confirm('Reject this approval request?')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                    Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="tn-form-actions">
+            <a asp-controller="Group" asp-action="Details" asp-route-id="@Model.GroupId" class="tn-btn tn-btn-secondary">Back to Group</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.tn-alert-info {
+    background-color: #dbeafe;
+    border-left: 4px solid var(--tn-primary);
+    color: #1e40af;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.tn-approval-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tn-approval-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--tn-bg-secondary);
+    border: 1px solid var(--tn-border);
+    border-radius: 8px;
+    gap: 2rem;
+}
+
+.tn-approval-info {
+    flex: 1;
+}
+
+.tn-approval-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tn-btn-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.tn-btn-success:hover {
+    background-color: #059669;
+}
+
+.tn-btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.tn-btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.tn-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.tn-empty-state svg {
+    color: var(--tn-border);
+    margin-bottom: 1rem;
+}
+
+@@media (max-width: 768px) {
+    .tn-approval-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .tn-approval-actions {
+        width: 100%;
+    }
+    
+    .tn-approval-actions .tn-btn {
+        flex: 1;
+    }
+}
+</style>

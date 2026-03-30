@@ -44,8 +44,8 @@
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
 
-                <label class="tn-terms">
-                    <input type="checkbox" required />
+                <label class="tn-terms" id="termsLabel">
+                    <input asp-for="AgreeToTerms" type="checkbox" />
                     <span>
                         I agree to the <a href="#" class="tn-link">Terms of Service</a> and <a href="#" class="tn-link">Privacy Policy</a>
                     </span>
@@ -69,4 +69,33 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('.tn-auth-form');
+            const termsCheckbox = document.querySelector('input[name="AgreeToTerms"]');
+            const termsLabel = document.getElementById('termsLabel');
+            let submitAttempted = false;
+
+            function updateTermsValidation() {
+                if (submitAttempted && !termsCheckbox.checked) {
+                    termsLabel.classList.add('is-invalid');
+                } else {
+                    termsLabel.classList.remove('is-invalid');
+                }
+            }
+
+            // Update on change
+            termsCheckbox.addEventListener('change', updateTermsValidation);
+
+            // Validate on form submission
+            form.addEventListener('submit', function (e) {
+                submitAttempted = true;
+                updateTermsValidation();
+                if (!termsCheckbox.checked) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
 }

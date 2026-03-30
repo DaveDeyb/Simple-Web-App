@@ -1,0 +1,32 @@
+@{
+    ViewData["Title"] = "Join Group";
+}
+
+<div class="tn-container">
+    <div class="tn-card" style="max-width: 600px; margin: 3rem auto;">
+        <div class="tn-card-header">
+            <h1 class="tn-heading-lg">Join a Group</h1>
+            <p class="tn-text-muted">Enter the invite code provided by your group admin</p>
+        </div>
+
+        <form asp-action="Join" method="post">
+            <div asp-validation-summary="ModelOnly" class="tn-alert tn-alert-danger"></div>
+
+            <div class="tn-form-group">
+                <label for="inviteCode" class="tn-label">Invite Code</label>
+                <input type="text" id="inviteCode" name="inviteCode" class="tn-input" 
+                       placeholder="Enter 8-character code" required 
+                       maxlength="8" style="text-transform: uppercase;" />
+            </div>
+
+            <div class="tn-form-actions">
+                <button type="submit" class="tn-btn tn-btn-primary">Join Group</button>
+                <a asp-action="MyGroups" class="tn-btn tn-btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
