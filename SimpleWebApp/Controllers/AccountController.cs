@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using SimpleWebApp.Models;
 using SimpleWebApp.ViewModels;
 
@@ -58,7 +59,16 @@ namespace SimpleWebApp.Controllers
                 return View(model);
             }
 
-            await _signInManager.SignInAsync(user, isPersistent: false);
+            await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, new[]
+            {
+                new Claim("IsAdmin", user.IsAdmin ? "true" : "false")
+            });
+
+            if (user.IsAdmin)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -77,11 +87,14 @@ namespace SimpleWebApp.Controllers
                 return View(model);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
-                model.Email,
-                model.Password,
-                model.RememberMe,
-                lockoutOnFailure: false);
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user is null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
+            }
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: false);
 
             if (!result.Succeeded)
             {
@@ -89,9 +102,19 @@ namespace SimpleWebApp.Controllers
                 return View(model);
             }
 
+            await _signInManager.SignInWithClaimsAsync(user, model.RememberMe, new[]
+            {
+                new Claim("IsAdmin", user.IsAdmin ? "true" : "false")
+            });
+
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
+            }
+
+            if (user.IsAdmin)
+            {
+                return RedirectToAction("Index", "Admin");
             }
 
             return RedirectToAction("Index", "Home");

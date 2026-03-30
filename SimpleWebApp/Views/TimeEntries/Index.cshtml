@@ -69,6 +69,8 @@
     var trackedHours = trackedSeconds / 3600d;
     var trackedHoursText = trackedHours.ToString("0.0");
     var currentlyClockedIn = status == "Clocked In" || status == "On Break";
+    var weekdays = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+    var selectedDayIndex = ((int)Model.SelectedDate.DayOfWeek + 6) % 7;
 }
 
 <div class="tn-dashboard">
@@ -122,26 +124,25 @@
         <article class="tn-panel tn-chart-panel">
             <h3>Tracked Hours</h3>
             <div id="tn-hours-chart" class="tn-hours-chart" data-frame="day">
-                <div class="tn-bar-row" data-day="Mon" data-week="8.0" data-dayval="1.0"></div>
-                <div class="tn-bar-row" data-day="Tue" data-week="8.5" data-dayval="1.0"></div>
-                <div class="tn-bar-row" data-day="Wed" data-week="8.0" data-dayval="1.0"></div>
-                <div class="tn-bar-row" data-day="Thu" data-week="8.0" data-dayval="1.0"></div>
-                <div class="tn-bar-row" data-day="Fri" data-week="7.5" data-dayval="1.0"></div>
-                <div class="tn-bar-row" data-day="Sat" data-week="0.0" data-dayval="0.0"></div>
-                <div class="tn-bar-row" data-day="Sun" data-week="0.0" data-dayval="0.0"></div>
+                @for (var i = 0; i < weekdays.Length; i++)
+                {
+                    var weekValue = i < Model.WeekDailyHours.Length ? Model.WeekDailyHours[i] : 0;
+                    var dayValue = i == selectedDayIndex ? weekValue : 0;
+                    <div class="tn-bar-row" data-day="@weekdays[i]" data-week="@weekValue.ToString("0.0")" data-dayval="@dayValue.ToString("0.0")"></div>
+                }
             </div>
             <div class="tn-hours-meta">
                 <div>
                     <span>Total Hours</span>
-                    <strong id="tn-total-hours">40.0h</strong>
+                    <strong id="tn-total-hours">@Model.TotalWorkedHours.ToString("0.0")h</strong>
                 </div>
                 <div>
                     <span>Overtime</span>
-                    <strong id="tn-overtime">2.0h</strong>
+                    <strong id="tn-overtime">@Model.OvertimeHours.ToString("0.0")h</strong>
                 </div>
                 <div>
                     <span>Breaks</span>
-                    <strong id="tn-breaks">3.5h</strong>
+                    <strong id="tn-breaks">@Model.TotalBreakHours.ToString("0.0")h</strong>
                 </div>
             </div>
         </article>
@@ -149,16 +150,23 @@
         <article class="tn-panel tn-whosin">
             <h3>Who's In/Out</h3>
             <div class="tn-mini-stats">
-                <div><strong>8</strong><span>In</span></div>
-                <div><strong>1</strong><span>Break</span></div>
-                <div><strong>3</strong><span>Out</span></div>
+                <div><strong>@Model.InCount</strong><span>In</span></div>
+                <div><strong>@Model.BreakCount</strong><span>Break</span></div>
+                <div><strong>@Model.OutCount</strong><span>Out</span></div>
             </div>
             <ul>
-                <li><span class="dot in"></span> Sarah Johnson <em>In</em></li>
-                <li><span class="dot in"></span> Michael Chen <em>In</em></li>
-                <li><span class="dot break"></span> Emma Davis <em>Break</em></li>
-                <li><span class="dot in"></span> James Wilson <em>In</em></li>
-                <li><span class="dot out"></span> David Martinez <em>Out</em></li>
+                @if (Model.TeamStatuses.Count == 0)
+                {
+                    <li><span class="dot out"></span> No team activity <em>Out</em></li>
+                }
+                else
+                {
+                    @foreach (var teamMember in Model.TeamStatuses)
+                    {
+                        var statusClass = teamMember.Status == "In" ? "in" : teamMember.Status == "Break" ? "break" : "out";
+                        <li><span class="dot @statusClass"></span> @teamMember.FullName <em>@teamMember.Status</em></li>
+                    }
+                }
             </ul>
         </article>
     </section>
@@ -171,8 +179,8 @@
         </article>
         <article class="tn-kpi-card">
             <span>Team Members</span>
-            <strong>12</strong>
-            <small>Active today</small>
+            <strong>@Model.TeamMembersCount</strong>
+            <small>Registered users</small>
         </article>
         <article class="tn-kpi-card">
             <span>Currently Clocked In</span>
@@ -181,7 +189,7 @@
         </article>
         <article class="tn-kpi-card">
             <span>Overtime</span>
-            <strong class="tn-accent">0.5h</strong>
+            <strong class="tn-accent">@Model.WeekOvertimeHours.ToString("0.0")h</strong>
             <small>This week</small>
         </article>
     </section>
@@ -199,14 +207,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach (var entry in Model.Entries)
+                @if (Model.Entries.Count == 0)
                 {
                     <tr>
-                        <td>@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                        <td>@entry.EntryType</td>
-                        <td>@entry.Project</td>
-                        <td>@entry.Notes</td>
+                        <td colspan="4">No entries for the selected date.</td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var entry in Model.Entries)
+                    {
+                        <tr>
+                            <td>@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>@entry.EntryType</td>
+                            <td>@entry.Project</td>
+                            <td>@entry.Notes</td>
+                        </tr>
+                    }
                 }
                 </tbody>
             </table>
@@ -223,6 +240,12 @@
             const totalHours = document.getElementById('tn-total-hours');
             const overtime = document.getElementById('tn-overtime');
             const breaks = document.getElementById('tn-breaks');
+            const dayWorked = @Model.TotalWorkedHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            const weekWorked = @Model.WeekTotalWorkedHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            const dayOvertime = @Model.OvertimeHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            const weekOvertime = @Model.WeekOvertimeHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            const dayBreaks = @Model.TotalBreakHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            const weekBreaks = @Model.WeekTotalBreakHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
 
             function renderChart(frame) {
                 if (!chart) return;
@@ -236,9 +259,9 @@
                     row.setAttribute('data-label', frame === 'week' ? row.dataset.day : row.dataset.day + ' hour');
                 });
 
-                if (totalHours) totalHours.textContent = total.toFixed(1) + 'h';
-                if (overtime) overtime.textContent = (frame === 'week' ? '2.0h' : '0.5h');
-                if (breaks) breaks.textContent = (frame === 'week' ? '3.5h' : '0.5h');
+                if (totalHours) totalHours.textContent = (frame === 'week' ? weekWorked : dayWorked).toFixed(1) + 'h';
+                if (overtime) overtime.textContent = (frame === 'week' ? weekOvertime : dayOvertime).toFixed(1) + 'h';
+                if (breaks) breaks.textContent = (frame === 'week' ? weekBreaks : dayBreaks).toFixed(1) + 'h';
             }
 
             function togglePills(container, onClick) {
