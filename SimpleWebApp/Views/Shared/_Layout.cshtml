@@ -9,13 +9,14 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SimpleWebApp.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="@((ViewData["BodyClass"] as string) ?? string.Empty)">
     @{
         var hideChrome = (ViewData["HideChrome"] as bool?) ?? false;
     }
 
     @if (!hideChrome)
     {
+        var fullWidth = (ViewData["FullWidth"] as bool?) ?? false;
         <header>
             <nav class="tn-landing-nav tn-app-nav">
                 <div class="tn-nav-left">
@@ -23,20 +24,24 @@
                         <span class="tn-logo-mark"><img src="~/img/logo.svg" alt="Time Nest Logo" /></span>
                         <span>Time Nest</span>
                     </a>
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <div class="tn-nav-left-links">
-                            <a class="tn-nav-link" asp-controller="TimeEntries" asp-action="Index">Dashboard</a>
-                            @if (User.HasClaim("IsAdmin", "true"))
-                            {
-                                <a class="tn-nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
-                            }
-                        </div>
-                    }
                 </div>
                 <div class="tn-nav-right">
                     @if (User.Identity?.IsAuthenticated == true)
                     {
+                        var fullNameClaim = User.FindFirst("FullName")?.Value;
+                        var displayName = string.IsNullOrWhiteSpace(fullNameClaim)
+                            ? User.Identity?.Name
+                            : fullNameClaim;
+                        displayName = string.IsNullOrWhiteSpace(displayName)
+                            ? "User"
+                            : displayName;
+                        var accountType = User.HasClaim("IsAdmin", "true") ? "Admin" : "User";
+
+                        <div class="tn-user-chip" aria-label="Signed in user">
+                            <span class="tn-user-name">@displayName</span>
+                            <span class="tn-user-type">@accountType</span>
+                        </div>
+
                         <form method="post" asp-controller="Account" asp-action="Logout">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="tn-btn tn-btn-primary">Logout</button>
@@ -50,7 +55,7 @@
                 </div>
             </nav>
         </header>
-        <div class="tn-app-main">
+        <div class="tn-app-main @(fullWidth ? "tn-app-main-wide" : string.Empty)">
             <main role="main" class="pb-3 tn-content-wrap">
                 @RenderBody()
             </main>

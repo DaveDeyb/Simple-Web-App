@@ -2,6 +2,12 @@ using SimpleWebApp.Models.Enums;
 
 namespace SimpleWebApp.ViewModels
 {
+    public class MyGroupsPageViewModel
+    {
+        public List<MyGroupsViewModel> Groups { get; set; } = new();
+        public bool IsUserAdmin { get; set; }
+    }
+
     public class MyGroupsViewModel
     {
         public string GroupId { get; set; } = string.Empty;

@@ -2,37 +2,44 @@
 
 @{
     ViewData["Title"] = "Create Group";
+    ViewData["FullWidth"] = true;
+    ViewData["BodyClass"] = "tn-body-form-page";
 }
 
-<div class="tn-container">
-    <div class="tn-card" style="max-width: 600px; margin: 3rem auto;">
-        <div class="tn-card-header">
-            <h1 class="tn-heading-lg">Create a New Group</h1>
-            <p class="tn-text-muted">Set up your team and start tracking time together</p>
-        </div>
+<section class="tn-form-page-wrap">
+    <div class="tn-form-page-inner">
+        <section class="tn-form-scene">
+            <div class="tn-form-inner">
+                <span class="tn-form-kicker">Team Setup</span>
+                <h1 class="tn-form-title">Create a New Group</h1>
+                <p class="tn-form-subtitle">Launch a focused space for your team and start tracking work in minutes.</p>
 
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="tn-alert tn-alert-danger"></div>
+                <form asp-action="Create" method="post" class="tn-form-panel">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-            <div class="tn-form-group">
-                <label asp-for="Name" class="tn-label">Group Name</label>
-                <input asp-for="Name" class="tn-input" placeholder="e.g., Frontend Team" required />
-                <span asp-validation-for="Name" class="tn-error"></span>
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Group Name</label>
+                        <input asp-for="Name" class="form-control tn-input" placeholder="e.g., Frontend Team" required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="Description" class="form-label fw-semibold">Description (optional)</label>
+                        <textarea asp-for="Description" class="form-control tn-input" placeholder="What is this group focused on?" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="tn-form-actions">
+                        <button type="submit" class="tn-btn tn-btn-primary">Create Group</button>
+                        <a asp-action="MyGroups" class="tn-btn tn-btn-outline">Cancel</a>
+                    </div>
+
+                    <p class="tn-form-note">You will become the group owner and can share invite codes with your team.</p>
+                </form>
             </div>
-
-            <div class="tn-form-group">
-                <label asp-for="Description" class="tn-label">Description (optional)</label>
-                <textarea asp-for="Description" class="tn-input" placeholder="Describe your group..." rows="3"></textarea>
-                <span asp-validation-for="Description" class="tn-error"></span>
-            </div>
-
-            <div class="tn-form-actions">
-                <button type="submit" class="tn-btn tn-btn-primary">Create Group</button>
-                <a asp-action="MyGroups" class="tn-btn tn-btn-secondary">Cancel</a>
-            </div>
-        </form>
+        </section>
     </div>
-</div>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -28,21 +28,28 @@ namespace SimpleWebApp.Controllers
             var userGroups = await _context.GroupMembers
                 .Where(gm => gm.UserId == userId && gm.ApprovalStatus == GroupMemberApprovalStatus.Approved)
                 .Include(gm => gm.Group)
-                .ThenInclude(g => g.Owner)
+                .ThenInclude(g => g!.Owner)
                 .ToListAsync();
 
             var groupList = userGroups.Select(gm => new MyGroupsViewModel
             {
-                GroupId = gm.Group.Id,
-                GroupName = gm.Group.Name,
-                GroupDescription = gm.Group.Description,
+                GroupId = gm.Group!.Id,
+                GroupName = gm.Group!.Name,
+                GroupDescription = gm.Group!.Description,
                 Role = gm.Role,
-                OwnerName = gm.Group.Owner?.UserName ?? "Unknown",
-                MemberCount = gm.Group.Members.Count,
-                CreatedAt = gm.Group.CreatedAt
+                OwnerName = gm.Group!.Owner?.UserName ?? "Unknown",
+                MemberCount = gm.Group!.Members.Count,
+                CreatedAt = gm.Group!.CreatedAt
             }).ToList();
 
-            return View(groupList);
+            var isAdmin = await IsCurrentUserAdminAsync();
+            var pageModel = new MyGroupsPageViewModel
+            {
+                Groups = groupList,
+                IsUserAdmin = isAdmin
+            };
+
+            return View(pageModel);
         }
 
         // GET: Group/Choice
@@ -82,6 +89,10 @@ namespace SimpleWebApp.Controllers
             }
 
             var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
             
             if (ModelState.IsValid)
             {
@@ -137,6 +148,10 @@ namespace SimpleWebApp.Controllers
             }
 
             var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
 
             // Check if user is already a member
             var existingMember = await _context.GroupMembers

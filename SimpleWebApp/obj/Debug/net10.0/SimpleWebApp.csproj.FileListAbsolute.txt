@@ -237,4 +237,4 @@ C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Debug\net10.0
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\bin\Debug\net10.0\publish\publish\SimpleWebApp.staticwebassets.endpoints.json
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Debug\net10.0\compressed\zced9go5x5-{0}-wwiocprycx-wwiocprycx.gz
 C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Debug\net10.0\compressed\qcrnp3abz7-{0}-ea5ddc5q4f-ea5ddc5q4f.gz
-C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Debug\net10.0\compressed\q3aul6jvsy-{0}-vbymm9k7c5-vbymm9k7c5.gz
+C:\Users\LYEuropa\Documents\GitHub\Simple-Web-App\SimpleWebApp\obj\Debug\net10.0\compressed\q3aul6jvsy-{0}-jxp8ok7aer-jxp8ok7aer.gz

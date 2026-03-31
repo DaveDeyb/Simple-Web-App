@@ -66,7 +66,8 @@ namespace SimpleWebApp.Controllers
 
             await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, new[]
             {
-                new Claim("IsAdmin", user.IsAdmin ? "true" : "false")
+                new Claim("IsAdmin", user.IsAdmin ? "true" : "false"),
+                new Claim("FullName", string.IsNullOrWhiteSpace(user.FullName) ? user.Email ?? "User" : user.FullName)
             });
 
             if (user.IsAdmin)
@@ -109,7 +110,8 @@ namespace SimpleWebApp.Controllers
 
             await _signInManager.SignInWithClaimsAsync(user, model.RememberMe, new[]
             {
-                new Claim("IsAdmin", user.IsAdmin ? "true" : "false")
+                new Claim("IsAdmin", user.IsAdmin ? "true" : "false"),
+                new Claim("FullName", string.IsNullOrWhiteSpace(user.FullName) ? user.Email ?? "User" : user.FullName)
             });
 
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -123,6 +125,12 @@ namespace SimpleWebApp.Controllers
             }
 
             return RedirectToAction("Join", "Group");
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
         [HttpPost]

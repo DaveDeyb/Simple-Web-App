@@ -50,8 +50,8 @@ namespace SimpleWebApp.Services
                 UserId = userId,
                 EntryType = type,
                 Timestamp = DateTime.UtcNow,
-                Project = project,
-                Notes = notes
+                Project = project ?? string.Empty,
+                Notes = notes ?? string.Empty
             };
 
             _context.TimeEntries.Add(entry);
