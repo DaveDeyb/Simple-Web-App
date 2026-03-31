@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj": {}
+    "C:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj": {}
   },
   "projects": {
-    "c:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj": {
+    "C:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj",
+        "projectUniqueName": "C:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj",
         "projectName": "SimpleWebApp",
-        "projectPath": "c:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj",
+        "projectPath": "C:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\SimpleWebApp.csproj",
         "packagesPath": "C:\\Users\\LYEuropa\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\obj\\",
+        "outputPath": "C:\\Users\\LYEuropa\\Documents\\GitHub\\Simple-Web-App\\SimpleWebApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
