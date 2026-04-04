@@ -41,8 +41,19 @@ app.UseAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {
+    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+    var logger = loggerFactory.CreateLogger("StartupMigration");
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+
+    try
+    {
+        db.Database.SetCommandTimeout(15);
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Skipping automatic database migration at startup.");
+    }
 }
 
 app.MapControllerRoute(
