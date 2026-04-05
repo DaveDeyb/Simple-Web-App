@@ -2,42 +2,54 @@
 
 @{
     ViewData["Title"] = $"Group: {Model.GroupName}";
+    ViewData["FullWidth"] = true;
+    ViewData["BodyClass"] = "tn-body-groups-page";
 }
 
-<div class="tn-container">
-    <div class="tn-card">
-        <div class="tn-card-header">
-            <div>
+<section class="tn-group-details-wrap">
+    <div class="tn-group-details-inner">
+        <section class="tn-group-hero-card">
+            <div class="tn-group-hero-head">
+                <span class="tn-group-kicker">Group Workspace</span>
                 <h1 class="tn-heading-lg">@Model.GroupName</h1>
-                <p class="tn-text-muted">@Model.GroupDescription</p>
+                @if (string.IsNullOrWhiteSpace(Model.GroupDescription))
+                {
+                    <p class="tn-text-muted">No group description yet.</p>
+                }
+                else
+                {
+                    <p class="tn-text-muted">@Model.GroupDescription</p>
+                }
             </div>
-            <div class="tn-group-info">
-                <div class="tn-info-item">
-                    <strong>Owner:</strong> @Model.OwnerName
+
+            <div class="tn-group-meta-grid">
+                <div class="tn-meta-pill">
+                    <span class="tn-meta-label">Owner</span>
+                    <strong>@Model.OwnerName</strong>
                 </div>
-                <div class="tn-info-item">
-                    <strong>Your Role:</strong> 
-                    <span class="tn-badge tn-badge-@(Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
-                        @Model.UserRole
-                    </span>
-                </div>
+
                 @if (!string.IsNullOrEmpty(Model.InviteCode))
                 {
-                    <div class="tn-info-item">
-                        <strong>Invite Code:</strong> 
-                        <code class="tn-code">@Model.InviteCode</code>
-                        <button type="button" class="tn-btn tn-btn-sm tn-btn-ghost" onclick="copyToClipboard('@Model.InviteCode')">Copy</button>
+                    <div class="tn-meta-pill tn-meta-pill-code">
+                        <span class="tn-meta-label">Invite Code</span>
+                        <div class="tn-code-row">
+                            <code class="tn-code">@Model.InviteCode</code>
+                            <button type="button" class="tn-btn tn-btn-outline tn-btn-sm" onclick="copyInviteCode(this, '@Model.InviteCode')">Copy</button>
+                        </div>
                     </div>
                 }
             </div>
-        </div>
+        </section>
 
-        <!-- Members Section -->
-        <div class="tn-section">
-            <h2 class="tn-heading-md">Team Members (@Model.Members.Count)</h2>
+        <section class="tn-panel">
+            <div class="tn-panel-head">
+                <h2 class="tn-heading-md">Team Members</h2>
+                <span class="tn-pill-count">@Model.Members.Count total</span>
+            </div>
+
             @if (Model.Members.Count == 0)
             {
-                <p class="tn-text-muted">No members yet.</p>
+                <p class="tn-empty-copy">No members yet.</p>
             }
             else
             {
@@ -66,7 +78,7 @@
                                     @if (Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin)
                                     {
                                         <td>
-                                            <form asp-action="RemoveMember" method="post" style="display: inline;">
+                                            <form asp-action="RemoveMember" method="post" class="tn-inline-form">
                                                 <input type="hidden" name="memberId" value="@member.MemberId" />
                                                 <input type="hidden" name="groupId" value="@Model.GroupId" />
                                                 <button type="submit" class="tn-btn tn-btn-sm tn-btn-danger" onclick="return confirm('Remove this member?')">Remove</button>
@@ -79,14 +91,16 @@
                     </table>
                 </div>
             }
-        </div>
+        </section>
 
-        <!-- Pending Approvals Section (only for Admin) -->
         @if (Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin && Model.PendingApprovals.Count > 0)
         {
-            <div class="tn-section tn-alert tn-alert-info">
-                <h2 class="tn-heading-md">Pending Admin Approvals (@Model.PendingApprovals.Count)</h2>
-                <p>These admins are waiting for approval to oversee your group.</p>
+            <section class="tn-panel tn-panel-highlight">
+                <div class="tn-panel-head">
+                    <h2 class="tn-heading-md">Pending Admin Approvals</h2>
+                    <span class="tn-pill-count">@Model.PendingApprovals.Count waiting</span>
+                </div>
+                <p class="tn-text-muted">These admins are waiting for approval to oversee your group.</p>
                 
                 <div class="tn-table-container">
                     <table class="tn-table">
@@ -103,13 +117,13 @@
                                 <tr>
                                     <td>@pending.UserName</td>
                                     <td>@pending.RequestedAt.ToString("MMM dd, yyyy HH:mm")</td>
-                                    <td>
-                                        <form asp-action="ApproveMember" method="post" style="display: inline;">
+                                    <td class="tn-action-stack">
+                                        <form asp-action="ApproveMember" method="post" class="tn-inline-form">
                                             <input type="hidden" name="memberId" value="@pending.MemberId" />
                                             <input type="hidden" name="groupId" value="@Model.GroupId" />
                                             <button type="submit" class="tn-btn tn-btn-sm tn-btn-success">Approve</button>
                                         </form>
-                                        <form asp-action="RejectMember" method="post" style="display: inline;">
+                                        <form asp-action="RejectMember" method="post" class="tn-inline-form">
                                             <input type="hidden" name="memberId" value="@pending.MemberId" />
                                             <input type="hidden" name="groupId" value="@Model.GroupId" />
                                             <button type="submit" class="tn-btn tn-btn-sm tn-btn-danger" onclick="return confirm('Reject this approval request?')">Reject</button>
@@ -120,46 +134,140 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
         }
 
-        <div class="tn-form-actions">
-            <a asp-action="MyGroups" class="tn-btn tn-btn-secondary">Back to Groups</a>
+        <div class="tn-group-footer-actions">
+            @if (Model.UserRole == SimpleWebApp.Models.Enums.GroupMemberRole.Admin)
+            {
+                <a asp-controller="TimeEntries" asp-action="GroupRecords" asp-route-groupId="@Model.GroupId" class="tn-btn tn-btn-primary">
+                    View Group Records
+                </a>
+            }
+            <a asp-action="MyGroups" class="tn-btn tn-btn-outline">Back to Groups</a>
         </div>
     </div>
-</div>
+</section>
 
 <style>
-.tn-group-info {
-    display: flex;
-    gap: 2rem;
-    margin-top: 1rem;
+.tn-group-details-wrap {
+    min-height: calc(100vh - 126px);
+    padding: clamp(1rem, 2.2vw, 1.8rem);
+}
+
+.tn-group-details-inner {
+    max-width: 1050px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1.2rem;
+}
+
+.tn-group-hero-card,
+.tn-panel {
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.1rem;
+    background:
+      radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+      radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
+}
+
+.tn-group-hero-card {
+    padding: 1.35rem;
+}
+
+.tn-panel {
+    padding: 1.2rem;
+}
+
+.tn-group-kicker {
+    display: inline-flex;
+    padding: 0.28rem 0.72rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(122, 162, 230, 0.45);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--tn-primary-strong);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.85rem;
+}
+
+.tn-group-hero-head h1 {
+    margin-bottom: 0.35rem;
+}
+
+.tn-group-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.8rem;
+    margin-top: 1.1rem;
+}
+
+.tn-meta-pill {
+    border: 1px solid rgba(122, 162, 230, 0.38);
+    border-radius: 0.82rem;
+    background: rgba(255, 255, 255, 0.82);
+    padding: 0.72rem 0.85rem;
+    display: grid;
+    gap: 0.32rem;
+}
+
+.tn-meta-label {
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tn-muted);
+    font-weight: 700;
+}
+
+.tn-code-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     flex-wrap: wrap;
 }
 
-.tn-info-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-}
-
 .tn-code {
-    background-color: var(--tn-bg-secondary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-family: monospace;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.26rem 0.58rem;
+    border-radius: 0.46rem;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    color: #1d4ed8;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.86rem;
+    font-weight: 700;
 }
 
-.tn-section {
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--tn-border);
+.tn-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
 }
 
-.tn-section:last-child {
-    border-bottom: none;
+.tn-panel-head h2 {
+    margin-bottom: 0;
+}
+
+.tn-pill-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    padding: 0.24rem 0.62rem;
+    border: 1px solid rgba(122, 162, 230, 0.45);
+    background: rgba(255, 255, 255, 0.86);
+    color: var(--tn-primary-strong);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .tn-table-container {
@@ -169,58 +277,98 @@
 .tn-table {
     width: 100%;
     border-collapse: collapse;
+    border: 1px solid rgba(122, 162, 230, 0.28);
+    border-radius: 0.72rem;
+    overflow: hidden;
 }
 
 .tn-table thead {
-    background-color: var(--tn-bg-secondary);
+    background: linear-gradient(180deg, #f2f8ff, #eaf4ff);
+}
+
+.tn-table th,
+.tn-table td {
+    padding: 0.82rem;
+    border-bottom: 1px solid rgba(122, 162, 230, 0.26);
+    vertical-align: middle;
 }
 
 .tn-table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    color: var(--tn-text);
-    border-bottom: 2px solid var(--tn-border);
+    font-weight: 700;
+    color: #0f172a;
 }
 
-.tn-table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--tn-border);
+.tn-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .tn-table tbody tr:hover {
-    background-color: var(--tn-bg-secondary);
+    background: rgba(234, 244, 255, 0.45);
 }
 
-.tn-btn-ghost {
-    background: none;
-    color: var(--tn-primary);
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
+.tn-inline-form {
+    display: inline;
 }
 
-.tn-btn-ghost:hover {
-    text-decoration: underline;
+.tn-action-stack {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.tn-alert {
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
-
-.tn-alert-info {
-    background-color: #dbeafe;
+.tn-panel-highlight {
     border-left: 4px solid var(--tn-primary);
-    color: #1e40af;
+}
+
+.tn-empty-copy {
+    margin: 0;
+    color: var(--tn-muted);
+}
+
+.tn-group-footer-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+@@media (max-width: 768px) {
+    .tn-group-details-wrap {
+        min-height: calc(100vh - 132px);
+        padding: 0.8rem;
+    }
+
+    .tn-group-hero-card,
+    .tn-panel {
+        padding: 1rem;
+    }
+
+    .tn-panel-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tn-group-footer-actions .tn-btn {
+        width: 100%;
+    }
 }
 </style>
 
 <script>
-function copyToClipboard(text) {
+function copyInviteCode(button, text) {
+    const original = button.textContent;
+
     navigator.clipboard.writeText(text).then(() => {
-        alert('Invite code copied to clipboard!');
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = original;
+        }, 1300);
+    }).catch(() => {
+        button.textContent = 'Unable to copy';
+        setTimeout(() => {
+            button.textContent = original;
+        }, 1300);
     });
 }
 </script>

@@ -18,6 +18,11 @@
                     Created: <strong>@Model.Group?.CreatedAt.ToString("MMM dd, yyyy")</strong>
                 </p>
             </div>
+            <div class="tn-group-header-actions">
+                <a asp-controller="TimeEntries" asp-action="GroupRecords" asp-route-groupId="@Model.Group?.Id" class="tn-btn tn-btn-primary">
+                    📊 View Group Records
+                </a>
+            </div>
         </div>
 
         @if (!string.IsNullOrEmpty(Model.Group?.Description))

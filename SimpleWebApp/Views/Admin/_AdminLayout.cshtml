@@ -35,9 +35,9 @@
                     <span class="tn-icon">👥</span>
                     <span>Users</span>
                 </a>
-                <a asp-controller="Admin" asp-action="Groups" class="tn-admin-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Groups" ? "active" : "")">
+                <a asp-controller="Group" asp-action="MyGroups" class="tn-admin-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Group" && ViewContext.RouteData.Values["action"]?.ToString() == "MyGroups" ? "active" : "")">
                     <span class="tn-icon">👫</span>
-                    <span>Groups</span>
+                    <span>My Groups</span>
                 </a>
             </nav>
 

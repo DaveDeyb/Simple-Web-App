@@ -93,20 +93,7 @@ namespace SimpleWebApp.Controllers
         {
             var check = await CheckAdminAccessAsync();
             if (check != null) return check;
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var groups = await _context.Groups
-                .Include(g => g.Owner)
-                .Include(g => g.Members)
-                .ToListAsync();
-
-            var model = new AdminGroupsViewModel
-            {
-                Groups = groups,
-                CurrentUserId = userId ?? ""
-            };
-
-            return View(model);
+            return RedirectToAction("MyGroups", "Group");
         }
 
         // Create Group

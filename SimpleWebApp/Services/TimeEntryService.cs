@@ -183,5 +183,21 @@ namespace SimpleWebApp.Services
 
             return (totalWorked, totalBreak);
         }
+
+        public async Task<List<TimeEntry>> GetGroupTimeEntriesAsync(string groupId, DateTime? date = null)
+        {
+            var baseQuery = _context.TimeEntries
+                .Include(e => e.User)
+                .Where(e => _context.GroupMembers.Any(gm => gm.GroupId == groupId && gm.UserId == e.UserId));
+
+            if (date.HasValue)
+            {
+                var start = date.Value.Date;
+                var end = start.AddDays(1);
+                baseQuery = baseQuery.Where(e => e.Timestamp >= start && e.Timestamp < end);
+            }
+
+            return await baseQuery.OrderByDescending(e => e.Timestamp).ToListAsync();
+        }
     }
 }

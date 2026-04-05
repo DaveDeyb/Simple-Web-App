@@ -25,4 +25,11 @@ namespace SimpleWebApp.ViewModels
         public int OutCount { get; set; }
         public List<TeamStatusItemViewModel> TeamStatuses { get; set; } = new();
     }
+
+    public class GroupTimeEntriesViewModel
+    {
+        public string GroupId { get; set; } = string.Empty;
+        public DateTime SelectedDate { get; set; } = DateTime.Today;
+        public List<TimeEntry> TimeEntries { get; set; } = new();
+    }
 }

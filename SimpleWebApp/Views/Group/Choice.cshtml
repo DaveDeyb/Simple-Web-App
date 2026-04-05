@@ -1,3 +1,5 @@
+@model SimpleWebApp.ViewModels.GroupChoiceViewModel
+
 @{
     ViewData["Title"] = "Get Started";
     ViewData["FullWidth"] = true;
@@ -8,55 +10,76 @@
     <div class="tn-choice-wrapper">
         <div class="tn-choice-header">
             <span class="tn-choice-kicker">Admin Workspace</span>
-            <h1 class="tn-heading-lg">Welcome to Time Nest!</h1>
-            <p class="tn-text-muted">Choose your next move and keep your team flowing.</p>
+            @if (Model.HasGroups)
+            {
+                <h1 class="tn-heading-lg">Your groups are ready</h1>
+                <p class="tn-text-muted">You already manage @Model.GroupCount group@(Model.GroupCount == 1 ? "" : "s"). Open your workspace to view members and records.</p>
+            }
+            else
+            {
+                <h1 class="tn-heading-lg">Welcome to Time Nest!</h1>
+                <p class="tn-text-muted">Choose your next move and keep your team flowing.</p>
+            }
         </div>
 
-        <div class="tn-choice-grid">
-            <!-- Create Group Option -->
-            <div class="tn-choice-card tn-choice-create">
-                <div class="tn-choice-icon create">
+        @if (Model.HasGroups)
+        {
+            <div class="tn-choice-recap-card">
+                <div class="tn-choice-icon recap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"></path>
+                        <path d="M3 7h18M3 12h18M3 17h18"></path>
+                        <circle cx="5" cy="7" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                        <circle cx="5" cy="17" r="1"></circle>
                     </svg>
                 </div>
-                <h2 class="tn-heading-md">Create a Group</h2>
-                <p class="tn-text-muted">Build a fresh team space and manage members with confidence.</p>
-                <ul class="tn-choice-features">
-                    <li>✓ Set up your team</li>
-                    <li>✓ Generate invite codes</li>
-                    <li>✓ Approve admins</li>
-                    <li>✓ Manage members</li>
-                </ul>
-                <a asp-controller="Group" asp-action="Create" class="tn-btn tn-btn-primary tn-btn-lg">Create Group</a>
+                <h2 class="tn-heading-md">Continue managing your groups</h2>
+                <p class="tn-text-muted">Create or join another group from My Groups, or jump straight into your existing group records.</p>
+                <a asp-controller="Group" asp-action="MyGroups" class="tn-btn tn-btn-primary tn-btn-lg tn-choice-primary-action">View My Groups</a>
+                <p class="tn-choice-secondary-note">From there you can create new groups, join more teams, and open records for any group tile.</p>
             </div>
-
-            <!-- Join Group Option -->
-            <div class="tn-choice-card tn-choice-join">
-                <div class="tn-choice-icon join">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                        <path d="M16 11h6"></path>
-                    </svg>
+        }
+        else
+        {
+            <div class="tn-choice-grid">
+                <div class="tn-choice-card tn-choice-create">
+                    <div class="tn-choice-icon create">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"></path>
+                        </svg>
+                    </div>
+                    <h2 class="tn-heading-md">Create a Group</h2>
+                    <p class="tn-text-muted">Build a fresh team space and manage members with confidence.</p>
+                    <ul class="tn-choice-features">
+                        <li>✓ Set up your team</li>
+                        <li>✓ Generate invite codes</li>
+                        <li>✓ Approve admins</li>
+                        <li>✓ Manage members</li>
+                    </ul>
+                    <a asp-controller="Group" asp-action="Create" class="tn-btn tn-btn-primary tn-btn-lg">Create Group</a>
                 </div>
-                <h2 class="tn-heading-md">Join a Group</h2>
-                <p class="tn-text-muted">Use an invite code to join an existing team as an overseer.</p>
-                <ul class="tn-choice-features">
-                    <li>✓ Enter invite code</li>
-                    <li>✓ Await group approval</li>
-                    <li>✓ View team analytics</li>
-                    <li>✓ Oversee members</li>
-                </ul>
-                <a asp-controller="Group" asp-action="Join" class="tn-btn tn-btn-outline tn-btn-lg">Join Group</a>
-            </div>
-        </div>
 
-        <div class="tn-choice-footer">
-            <p class="tn-text-muted">
-                Already have groups? <a asp-controller="Group" asp-action="MyGroups" class="tn-link">View my groups</a>
-            </p>
-        </div>
+                <div class="tn-choice-card tn-choice-join">
+                    <div class="tn-choice-icon join">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                            <path d="M16 11h6"></path>
+                        </svg>
+                    </div>
+                    <h2 class="tn-heading-md">Join a Group</h2>
+                    <p class="tn-text-muted">Use an invite code to join an existing team as an overseer.</p>
+                    <ul class="tn-choice-features">
+                        <li>✓ Enter invite code</li>
+                        <li>✓ Await group approval</li>
+                        <li>✓ View team analytics</li>
+                        <li>✓ Oversee members</li>
+                    </ul>
+                    <a asp-controller="Group" asp-action="Join" class="tn-btn tn-btn-outline tn-btn-lg">Join Group</a>
+                </div>
+            </div>
+        }
+
     </div>
 </section>
 
@@ -81,7 +104,7 @@
 
 .tn-choice-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .tn-choice-kicker {
@@ -111,7 +134,8 @@
     margin-bottom: 2rem;
 }
 
-.tn-choice-card {
+.tn-choice-card,
+.tn-choice-recap-card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -124,10 +148,17 @@
     backdrop-filter: blur(4px);
 }
 
-.tn-choice-card:hover {
+.tn-choice-card:hover,
+.tn-choice-recap-card:hover {
     border-color: var(--tn-primary);
     box-shadow: 0 16px 28px rgba(37, 99, 235, 0.16);
     transform: translateY(-6px);
+}
+
+.tn-choice-recap-card {
+    max-width: 640px;
+    margin: 0 auto 2rem;
+    gap: 0.9rem;
 }
 
 .tn-choice-icon {
@@ -148,6 +179,10 @@
 
 .tn-choice-icon.join {
     background: linear-gradient(135deg, var(--tn-accent), #0891b2);
+}
+
+.tn-choice-icon.recap {
+    background: linear-gradient(135deg, var(--tn-primary), var(--tn-accent));
 }
 
 .tn-choice-features {
@@ -172,18 +207,14 @@
     margin-top: 1rem;
 }
 
-.tn-choice-footer {
-    text-align: center;
+.tn-choice-primary-action {
+    max-width: 260px;
 }
 
-.tn-link {
-    color: var(--tn-primary);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.tn-link:hover {
-    text-decoration: underline;
+.tn-choice-secondary-note {
+    margin: 0;
+    color: var(--tn-muted);
+    font-size: 0.92rem;
 }
 
 @@media (max-width: 640px) {
@@ -200,7 +231,8 @@
         gap: 1.5rem;
     }
 
-    .tn-choice-card {
+    .tn-choice-card,
+    .tn-choice-recap-card {
         padding: 1.5rem;
     }
 }

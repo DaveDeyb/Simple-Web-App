@@ -1,0 +1,354 @@
+@model SimpleWebApp.ViewModels.GroupTimeEntriesViewModel
+
+@{
+    ViewData["Title"] = "Group Time Entries";
+}
+
+<section class="tn-group-records-wrap">
+    <div class="tn-group-records-inner">
+        <!-- Header -->
+        <div class="tn-records-header">
+            <div class="tn-header-content">
+                <a href="javascript:history.back()" class="tn-back-link">← Back</a>
+                <h1 class="tn-heading-lg">Group Time Entries</h1>
+                <p class="tn-text-muted">All time entries logged by group members</p>
+            </div>
+        </div>
+
+        <!-- Date Filter -->
+        <div class="tn-records-filter">
+            <form method="get" class="tn-filter-form">
+                <div class="tn-filter-group">
+                    <label for="date" class="tn-filter-label">Date:</label>
+                    <input type="date" id="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="tn-filter-input" />
+                    <input type="hidden" name="groupId" value="@Model.GroupId" />
+                    <button type="submit" class="tn-btn tn-btn-primary">Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Records Table -->
+        <div class="tn-records-section">
+            @if (Model.TimeEntries.Count == 0)
+            {
+                <div class="tn-empty-state">
+                    <p>No time entries recorded for this date.</p>
+                </div>
+            }
+            else
+            {
+                <div class="tn-table-container">
+                    <table class="tn-records-table">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Entry Type</th>
+                                <th>Timestamp</th>
+                                <th>Project</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var entry in Model.TimeEntries)
+                            {
+                                <tr class="tn-record-row">
+                                    <td class="tn-member-cell">
+                                        <span class="tn-member-avatar">@entry.User?.FullName?.FirstOrDefault()</span>
+                                        <div class="tn-member-info">
+                                            <div class="tn-member-name">@entry.User?.FullName</div>
+                                            <div class="tn-member-email">@entry.User?.Email</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="tn-badge tn-badge-@(entry.EntryType.ToString().ToLower())">
+                                            @entry.EntryType.ToString()
+                                        </span>
+                                    </td>
+                                    <td class="tn-timestamp">@entry.Timestamp.ToString("MMM dd, yyyy HH:mm:ss")</td>
+                                    <td>@(string.IsNullOrEmpty(entry.Project) ? "—" : entry.Project)</td>
+                                    <td class="tn-notes">@(string.IsNullOrEmpty(entry.Notes) ? "—" : entry.Notes)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+.tn-group-records-wrap {
+    min-height: calc(100vh - 126px);
+    padding: clamp(1rem, 2.2vw, 1.8rem);
+    background: var(--tn-bg);
+}
+
+.tn-group-records-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.tn-records-header {
+    padding: 2rem;
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.2rem;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
+}
+
+.tn-back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--tn-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.tn-back-link:hover {
+    color: var(--tn-primary-strong);
+}
+
+.tn-header-content h1 {
+    margin-bottom: 0.5rem;
+}
+
+.tn-records-filter {
+    padding: 1.2rem;
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.1rem;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
+}
+
+.tn-filter-form {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.tn-filter-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.tn-filter-label {
+    font-weight: 600;
+    color: var(--tn-text);
+    white-space: nowrap;
+}
+
+.tn-filter-input {
+    padding: 0.6rem 0.85rem;
+    border: 1px solid rgba(122, 162, 230, 0.28);
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+}
+
+.tn-records-section {
+    padding: 1.5rem;
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.1rem;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
+}
+
+.tn-table-container {
+    overflow-x: auto;
+}
+
+.tn-records-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid rgba(122, 162, 230, 0.28);
+    border-radius: 0.8rem;
+    overflow: hidden;
+}
+
+.tn-records-table thead {
+    background: linear-gradient(180deg, #f2f8ff, #eaf4ff);
+}
+
+.tn-records-table th {
+    padding: 0.85rem;
+    font-weight: 700;
+    color: var(--tn-text);
+    text-align: left;
+    border-bottom: 1px solid rgba(122, 162, 230, 0.26);
+}
+
+.tn-records-table td {
+    padding: 0.85rem;
+    border-bottom: 1px solid rgba(122, 162, 230, 0.26);
+    vertical-align: middle;
+}
+
+.tn-record-row:hover {
+    background: rgba(234, 244, 255, 0.45);
+}
+
+.tn-records-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tn-member-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tn-member-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--tn-primary), var(--tn-accent));
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.tn-member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.tn-member-name {
+    font-weight: 600;
+    color: var(--tn-text);
+    font-size: 0.95rem;
+}
+
+.tn-member-email {
+    font-size: 0.8rem;
+    color: var(--tn-muted);
+}
+
+.tn-badge {
+    display: inline-block;
+    padding: 0.32rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.tn-badge-clockin {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #166534;
+}
+
+.tn-badge-breakstart {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #7c2d12;
+}
+
+.tn-badge-breakend {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #1e40af;
+}
+
+.tn-badge-clockout {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #7f1d1d;
+}
+
+.tn-timestamp {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--tn-muted);
+}
+
+.tn-notes {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--tn-muted);
+    font-size: 0.9rem;
+}
+
+.tn-empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--tn-muted);
+}
+
+.tn-btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.7rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tn-btn-primary {
+    background: var(--tn-primary);
+    color: white;
+}
+
+.tn-btn-primary:hover {
+    background: var(--tn-primary-strong);
+}
+
+@@media (max-width: 768px) {
+    .tn-group-records-wrap {
+        padding: 1rem;
+    }
+
+    .tn-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tn-filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tn-filter-input {
+        width: 100%;
+    }
+
+    .tn-member-cell {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .tn-records-table {
+        font-size: 0.85rem;
+    }
+
+    .tn-records-table th,
+    .tn-records-table td {
+        padding: 0.6rem;
+    }
+}
+</style>

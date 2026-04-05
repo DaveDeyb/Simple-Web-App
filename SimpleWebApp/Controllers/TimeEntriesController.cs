@@ -82,5 +82,25 @@ namespace SimpleWebApp.Controllers
             await _service.AddEntryAsync(userId, entryType, project, notes);
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GroupRecords(string groupId, DateTime? date)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var selectedDate = date ?? DateTime.Today;
+            var model = new GroupTimeEntriesViewModel
+            {
+                GroupId = groupId,
+                SelectedDate = selectedDate,
+                TimeEntries = await _service.GetGroupTimeEntriesAsync(groupId, selectedDate)
+            };
+
+            return View(model);
+        }
     }
 }

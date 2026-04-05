@@ -24,7 +24,7 @@
 
                     <div class="tn-form-actions">
                         <button type="submit" class="tn-btn tn-btn-primary">Join Group</button>
-                        <a asp-action="MyGroups" class="tn-btn tn-btn-outline">Cancel</a>
+                        <a asp-controller="@(ViewBag.CancelController ?? "Group")" asp-action="@(ViewBag.CancelAction ?? "MyGroups")" class="tn-btn tn-btn-outline">Cancel</a>
                     </div>
 
                     <p class="tn-form-note">For admin-created groups, your request may need owner approval before access is granted.</p>

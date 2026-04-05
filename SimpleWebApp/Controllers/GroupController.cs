@@ -37,16 +37,24 @@ namespace SimpleWebApp.Controllers
                 GroupName = gm.Group!.Name,
                 GroupDescription = gm.Group!.Description,
                 Role = gm.Role,
-                OwnerName = gm.Group!.Owner?.UserName ?? "Unknown",
+                OwnerName = GetDisplayName(gm.Group!.Owner),
                 MemberCount = gm.Group!.Members.Count,
                 CreatedAt = gm.Group!.CreatedAt
             }).ToList();
 
             var isAdmin = await IsCurrentUserAdminAsync();
+
+            // Non-admin users with an approved group should use the time dashboard directly.
+            if (!isAdmin && groupList.Count > 0)
+            {
+                return RedirectToAction("Index", "TimeEntries");
+            }
+
             var pageModel = new MyGroupsPageViewModel
             {
                 Groups = groupList,
-                IsUserAdmin = isAdmin
+                IsUserAdmin = isAdmin,
+                CanJoinGroup = isAdmin || groupList.Count == 0
             };
 
             return View(pageModel);
@@ -61,7 +69,19 @@ namespace SimpleWebApp.Controllers
             {
                 return Forbid();
             }
-            return View();
+
+            var userId = _userManager.GetUserId(User);
+            var approvedMembershipCount = await _context.GroupMembers.CountAsync(gm =>
+                gm.UserId == userId && gm.ApprovalStatus == GroupMemberApprovalStatus.Approved);
+
+            var model = new GroupChoiceViewModel
+            {
+                HasGroups = approvedMembershipCount > 0,
+                GroupCount = approvedMembershipCount,
+                IsUserAdmin = true
+            };
+
+            return View(model);
         }
 
         // GET: Group/Create
@@ -122,8 +142,21 @@ namespace SimpleWebApp.Controllers
         }
 
         // GET: Group/Join
-        public IActionResult Join()
+        public async Task<IActionResult> Join()
         {
+            var userId = _userManager.GetUserId(User);
+            var isAdmin = await IsCurrentUserAdminAsync();
+            var hasApprovedGroup = !string.IsNullOrEmpty(userId) && await _context.GroupMembers.AnyAsync(gm =>
+                gm.UserId == userId && gm.ApprovalStatus == GroupMemberApprovalStatus.Approved);
+
+            // Enforce one-group rule for non-admin users.
+            if (!isAdmin && hasApprovedGroup)
+            {
+                return RedirectToAction("Index", "TimeEntries");
+            }
+
+            ViewBag.CancelAction = hasApprovedGroup ? "Index" : "MyGroups";
+            ViewBag.CancelController = hasApprovedGroup ? "TimeEntries" : "Group";
             return View();
         }
 
@@ -153,6 +186,20 @@ namespace SimpleWebApp.Controllers
                 return Unauthorized();
             }
 
+            var isAdmin = await IsCurrentUserAdminAsync();
+
+            // Enforce one-group rule for non-admin users.
+            if (!isAdmin)
+            {
+                var hasApprovedGroup = await _context.GroupMembers.AnyAsync(gm =>
+                    gm.UserId == userId && gm.ApprovalStatus == GroupMemberApprovalStatus.Approved);
+
+                if (hasApprovedGroup)
+                {
+                    return RedirectToAction("Index", "TimeEntries");
+                }
+            }
+
             // Check if user is already a member
             var existingMember = await _context.GroupMembers
                 .FirstOrDefaultAsync(gm => gm.GroupId == group.Id && gm.UserId == userId);
@@ -163,7 +210,7 @@ namespace SimpleWebApp.Controllers
                 return View();
             }
 
-            var isAdmin = User.HasClaim("IsAdmin", "true");
+            isAdmin = isAdmin || User.HasClaim("IsAdmin", "true");
             var user = await _userManager.FindByIdAsync(userId);
 
             // Determine role and approval status
@@ -217,7 +264,7 @@ namespace SimpleWebApp.Controllers
                 GroupId = group.Id,
                 GroupName = group.Name,
                 GroupDescription = group.Description,
-                OwnerName = group.Owner?.UserName ?? "Unknown",
+                OwnerName = GetDisplayName(group.Owner),
                 InviteCode = userMembership.Role == GroupMemberRole.Admin ? group.InviteCode : null,
                 UserRole = userMembership.Role,
                 Members = group.Members
@@ -226,7 +273,7 @@ namespace SimpleWebApp.Controllers
                     {
                         MemberId = gm.Id,
                         UserId = gm.UserId,
-                        UserName = gm.User?.UserName ?? "Unknown",
+                        UserName = GetDisplayName(gm.User),
                         Role = gm.Role
                     })
                     .ToList(),
@@ -236,7 +283,7 @@ namespace SimpleWebApp.Controllers
                     {
                         MemberId = gm.Id,
                         UserId = gm.UserId,
-                        UserName = gm.User?.UserName ?? "Unknown",
+                        UserName = GetDisplayName(gm.User),
                         RequestedAt = gm.AddedAt
                     })
                     .ToList()
@@ -352,7 +399,7 @@ namespace SimpleWebApp.Controllers
                 {
                     MemberId = gm.Id,
                     UserId = gm.UserId,
-                    UserName = gm.User?.UserName ?? "Unknown",
+                    UserName = GetDisplayName(gm.User),
                     RequestedAt = gm.AddedAt
                 })
                 .ToList();
@@ -381,6 +428,31 @@ namespace SimpleWebApp.Controllers
             // Prefer authoritative DB flag; keep claim as fallback for compatibility.
             var currentUser = await _userManager.GetUserAsync(User);
             return (currentUser?.IsAdmin ?? false) || User.HasClaim("IsAdmin", "true");
+        }
+
+        private static string GetDisplayName(ApplicationUser? user)
+        {
+            if (user == null)
+            {
+                return "Unknown";
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.FullName))
+            {
+                return user.FullName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.UserName))
+            {
+                return user.UserName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                return user.Email;
+            }
+
+            return "Unknown";
         }
     }
 }

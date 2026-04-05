@@ -6,6 +6,7 @@ namespace SimpleWebApp.ViewModels
     {
         public List<MyGroupsViewModel> Groups { get; set; } = new();
         public bool IsUserAdmin { get; set; }
+        public bool CanJoinGroup { get; set; } = true;
     }
 
     public class MyGroupsViewModel
@@ -52,5 +53,12 @@ namespace SimpleWebApp.ViewModels
         public string GroupId { get; set; } = string.Empty;
         public string GroupName { get; set; } = string.Empty;
         public List<PendingApprovalViewModel> PendingApprovals { get; set; } = new();
+    }
+
+    public class GroupChoiceViewModel
+    {
+        public bool HasGroups { get; set; }
+        public int GroupCount { get; set; }
+        public bool IsUserAdmin { get; set; }
     }
 }

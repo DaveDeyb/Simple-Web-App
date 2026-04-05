@@ -7,108 +7,159 @@
 }
 
 <section class="tn-groups-page-wrap">
-<div class="tn-groups-page-inner">
-    <div class="tn-page-header">
-        <div>
-            <h1 class="tn-heading-lg">My Groups</h1>
-            <p class="tn-text-muted">Manage and join groups to track time with your team</p>
-        </div>
-        <div class="tn-btn-group">
-            @if (Model.IsUserAdmin)
-            {
-                <a asp-controller="Group" asp-action="Create" class="tn-btn tn-btn-primary tn-btn-lg">
-                    <span class="tn-btn-icon">+</span> Create Group
-                </a>
-            }
-            <a asp-controller="Group" asp-action="Join" class="tn-btn tn-btn-outline tn-btn-lg">Join Group</a>
-        </div>
-    </div>
-
-    @if (Model.Groups.Count == 0)
-    {
-        <div class="tn-empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="tn-empty-icon">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <h2>No groups yet</h2>
-            <p>
+    <div class="tn-groups-page-inner">
+        <!-- Hero Header Section -->
+        <div class="tn-hero-header">
+            <div class="tn-hero-content">
+                <span class="tn-kicker">Team Workspaces</span>
+                <h1 class="tn-heading-lg">My Groups</h1>
+                <p class="tn-text-muted">Manage and join groups to track time with your team</p>
+            </div>
+            <div class="tn-btn-group">
                 @if (Model.IsUserAdmin)
                 {
-                    <span>Create or join a group to get started with team time tracking.</span>
+                    <a asp-controller="Group" asp-action="Create" class="tn-btn tn-btn-primary tn-btn-lg">
+                        <span class="tn-btn-icon">+</span> Create Group
+                    </a>
                 }
-                else
+                @if (Model.CanJoinGroup)
                 {
-                    <span>Join a group to get started with team time tracking.</span>
+                    <a asp-controller="Group" asp-action="Join" class="tn-btn tn-btn-outline tn-btn-lg">Join Group</a>
                 }
-            </p>
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="tn-grid" style="--columns: auto-fit; --min-width: 300px;">
-            @foreach (var group in Model.Groups)
-            {
-                <div class="tn-card tn-card-hover">
-                    <div class="tn-card-header">
-                        <h3 class="tn-heading-md">@group.GroupName</h3>
-                        <span class="tn-badge tn-badge-@(group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
-                            @group.Role
-                        </span>
-                    </div>
-                    <p class="tn-text-muted">@group.GroupDescription</p>
-                    <div class="tn-card-meta">
-                        <small>👤 @group.OwnerName</small>
-                        <small>👥 @group.MemberCount members</small>
-                    </div>
-                    <a asp-controller="Group" asp-action="Details" asp-route-id="@group.GroupId" class="tn-btn tn-btn-outline tn-btn-sm">View Details</a>
+
+        @if (Model.Groups.Count == 0)
+        {
+            <div class="tn-empty-state-card">
+                <div class="tn-empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="tn-empty-icon">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <h2>No groups yet</h2>
+                    <p>
+                        @if (Model.IsUserAdmin)
+                        {
+                            <span>Create or join a group to get started with team time tracking.</span>
+                        }
+                        else
+                        {
+                            <span>Join a group to get started with team time tracking.</span>
+                        }
+                    </p>
                 </div>
-            }
-        </div>
-    }
-</div>
+            </div>
+        }
+        else
+        {
+            <div class="tn-groups-grid">
+                @foreach (var group in Model.Groups)
+                {
+                    <div class="tn-group-card">
+                        <div class="tn-group-card-header">
+                            <div class="tn-group-card-title">
+                                <h3 class="tn-heading-md">@group.GroupName</h3>
+                                <span class="tn-badge tn-badge-@(group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
+                                    @group.Role
+                                </span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(group.GroupDescription))
+                        {
+                            <p class="tn-group-description">@group.GroupDescription</p>
+                        }
+
+                        <div class="tn-group-metadata">
+                            <div class="tn-meta-item">
+                                <span class="tn-meta-label">Owner</span>
+                                <span class="tn-meta-value">@group.OwnerName</span>
+                            </div>
+                            <div class="tn-meta-item">
+                                <span class="tn-meta-label">Members</span>
+                                <span class="tn-meta-value">@group.MemberCount</span>
+                            </div>
+                        </div>
+
+                        <div class="tn-group-card-actions">
+                            @if (Model.IsUserAdmin)
+                            {
+                                <a asp-controller="TimeEntries" asp-action="GroupRecords" asp-route-groupId="@group.GroupId" class="tn-btn tn-btn-primary tn-btn-full">
+                                    View Records
+                                </a>
+                            }
+                            <a asp-controller="Group" asp-action="Details" asp-route-id="@group.GroupId" class="tn-btn tn-btn-outline tn-btn-full">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </section>
 
 <style>
 .tn-groups-page-wrap {
     min-height: calc(100vh - 126px);
-    padding: clamp(1rem, 2.2vw, 1.75rem);
+    padding: clamp(1rem, 2.2vw, 1.8rem);
 }
 
 .tn-groups-page-inner {
-    max-width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
+    display: grid;
+    gap: 2rem;
 }
 
-.tn-page-header {
+.tn-hero-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 2rem;
-    margin-bottom: 3rem;
     padding: 2rem;
-    background: linear-gradient(135deg, var(--tn-primary-light, rgba(37, 99, 235, 0.05)) 0%, transparent 100%);
-    border-radius: 12px;
-    border-left: 4px solid var(--tn-primary);
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.2rem;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
 }
 
-.tn-page-header h1 {
+.tn-hero-content h1 {
     margin: 0 0 0.5rem 0;
+}
+
+.tn-kicker {
+    display: inline-flex;
+    padding: 0.28rem 0.72rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(122, 162, 230, 0.45);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--tn-primary-strong);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.85rem;
 }
 
 .tn-btn-group {
     display: flex;
-    gap: 1rem;
+    gap: 0.85rem;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    align-items: center;
 }
 
 .tn-btn-lg {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.72rem 1.4rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    border-radius: 0.8rem;
+    transition: all 0.25s ease;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
@@ -127,65 +178,162 @@
 }
 
 .tn-btn-outline.tn-btn-lg {
-    background: #fff;
-    border: 2px solid var(--tn-primary);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid var(--tn-primary);
     color: var(--tn-primary);
 }
 
 .tn-btn-outline.tn-btn-lg:hover {
-    background: var(--tn-primary-light, rgba(37, 99, 235, 0.05));
+    background: rgba(37, 99, 235, 0.08);
     transform: translateY(-2px);
 }
 
 .tn-btn-icon {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
 }
 
-.tn-grid {
+/* Group Cards Grid */
+.tn-groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--min-width, 300px), 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.2rem;
 }
 
-.tn-card-hover {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.tn-card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-
-.tn-card-meta {
+/* Individual Group Card */
+.tn-group-card {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
-    margin: 1rem 0;
-    font-size: 0.875rem;
+    padding: 1.2rem;
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.1rem;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+}
+
+.tn-group-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(31, 83, 171, 0.15);
+    border-color: rgba(122, 162, 230, 0.5);
+}
+
+.tn-group-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.tn-group-card-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.tn-group-card-title h3 {
+    margin: 0;
+    line-height: 1.4;
+}
+
+.tn-group-description {
+    margin: 0;
+    color: var(--tn-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Metadata Section */
+.tn-group-metadata {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.tn-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.72rem;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(122, 162, 230, 0.28);
+}
+
+.tn-meta-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tn-muted);
+    font-weight: 700;
+}
+
+.tn-meta-value {
+    color: var(--tn-text);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Button Full Width */
+.tn-btn-full {
+    width: 100%;
+    text-align: center;
+}
+
+.tn-group-card-actions {
+    display: grid;
+    gap: 0.65rem;
+}
+
+/* Empty State */
+.tn-empty-state-card {
+    border: 1px solid rgba(122, 162, 230, 0.36);
+    border-radius: 1.1rem;
+    background:
+        radial-gradient(circle at 8% 2%, rgba(47, 111, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(6, 182, 212, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
+    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
+    backdrop-filter: blur(4px);
 }
 
 .tn-empty-state {
     text-align: center;
     padding: 4rem 2rem;
-    color: var(--tn-text-muted);
-    border: 1px solid rgba(122, 162, 230, 0.35);
-    border-radius: 1.1rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(243, 250, 255, 0.82));
-    box-shadow: 0 14px 28px rgba(31, 83, 171, 0.08);
+    color: var(--tn-muted);
 }
 
 .tn-empty-icon {
     margin-bottom: 1rem;
-    color: var(--tn-border);
+    color: rgba(122, 162, 230, 0.4);
+    display: inline-flex;
 }
 
+.tn-empty-state h2 {
+    margin: 0.5rem 0;
+    font-size: 1.4rem;
+}
+
+.tn-empty-state p {
+    margin: 0.5rem 0 0;
+    font-size: 0.95rem;
+}
+
+/* Badge Styling */
 .tn-badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
+    padding: 0.32rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .tn-badge-primary {
@@ -199,26 +347,50 @@
 }
 
 .tn-badge-secondary {
-    background-color: var(--tn-border);
-    color: var(--tn-text);
+    background-color: rgba(122, 162, 230, 0.2);
+    color: var(--tn-primary-strong);
 }
 
+/* Responsive Design */
 @@media (max-width: 768px) {
     .tn-groups-page-wrap {
         min-height: calc(100vh - 132px);
-        padding: 0.8rem;
+        padding: 1rem;
     }
 
-    .tn-page-header {
-        flex-direction: column;
+    .tn-groups-page-inner {
+        gap: 1.5rem;
     }
-    
+
+    .tn-hero-header {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
     .tn-btn-group {
         width: 100%;
+        justify-content: flex-start;
     }
-    
-    .tn-btn-group .tn-btn {
+
+    .tn-btn-group .tn-btn-lg {
         flex: 1;
+        min-width: 140px;
+    }
+
+    .tn-groups-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tn-group-card-actions {
+        gap: 0.55rem;
+    }
+
+    .tn-group-metadata {
+        grid-template-columns: 1fr;
+    }
+
+    .tn-hero-content h1 {
+        font-size: 1.8rem;
     }
 }
 </style>

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace SimpleWebApp.Models
 {
@@ -8,6 +9,8 @@ namespace SimpleWebApp.Models
 
         [Required]
         public string UserId { get; set; } = string.Empty;
+
+        public ApplicationUser? User { get; set; }
 
         public TimeEntryType EntryType { get; set; }
 
