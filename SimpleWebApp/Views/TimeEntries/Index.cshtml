@@ -71,6 +71,12 @@
     var currentlyClockedIn = status == "Clocked In" || status == "On Break";
     var weekdays = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
     var selectedDayIndex = ((int)Model.SelectedDate.DayOfWeek + 6) % 7;
+
+    var latestType = latestEntry?.EntryType;
+    var canClockIn = latestType is null || latestType == SimpleWebApp.Models.TimeEntryType.ClockOut;
+    var canBreak = latestType == SimpleWebApp.Models.TimeEntryType.ClockIn;
+    var canResume = latestType == SimpleWebApp.Models.TimeEntryType.BreakStart;
+    var canClockOut = latestType == SimpleWebApp.Models.TimeEntryType.ClockIn || latestType == SimpleWebApp.Models.TimeEntryType.BreakEnd;
 }
 
 <div class="tn-dashboard">
@@ -79,20 +85,10 @@
         <p>Monitor your team's productivity and time tracking.</p>
     </section>
 
-    @if (TempData["Error"] is string error)
-    {
-        <div class="alert alert-danger mb-4">@error</div>
-    }
-
     <section class="tn-filterbar">
         <div class="tn-pill-group" id="tn-timeframe">
             <button type="button" class="tn-pill active" data-frame="day">Day</button>
             <button type="button" class="tn-pill" data-frame="week">Week</button>
-        </div>
-
-        <div class="tn-pill-group" id="tn-viewmode">
-            <button type="button" class="tn-pill active">Organization</button>
-            <button type="button" class="tn-pill">Personal</button>
         </div>
 
         <form method="get" asp-action="Index" class="tn-date-form">
@@ -113,12 +109,40 @@
         </div>
         <form method="post" asp-action="Action" class="tn-clock-actions">
             @Html.AntiForgeryToken()
-            <button type="submit" name="entryType" value="ClockIn" class="tn-primary-btn">Clock In</button>
-            <button type="submit" name="entryType" value="BreakStart" class="tn-outline-btn">Break</button>
-            <button type="submit" name="entryType" value="BreakEnd" class="tn-outline-btn">Resume</button>
-            <button type="submit" name="entryType" value="ClockOut" class="tn-outline-btn">Clock Out</button>
+            <input type="hidden" name="entryType" id="tn-entryType" value="" />
+            @if (canClockIn)
+            {
+                <button type="submit" name="entryType" value="ClockIn" class="tn-action-btn tn-action-in">Clock In</button>
+            }
+
+            @if (canBreak)
+            {
+                <button type="button" class="tn-action-btn tn-action-warn tn-confirm-trigger" data-entry="BreakStart" data-message="Start break now?">Break</button>
+            }
+
+            @if (canResume)
+            {
+                <button type="submit" name="entryType" value="BreakEnd" class="tn-action-btn tn-action-warn">Resume</button>
+            }
+
+            @if (canClockOut)
+            {
+                <button type="button" class="tn-action-btn tn-action-out tn-confirm-trigger" data-entry="ClockOut" data-message="Clock out now?">Clock Out</button>
+            }
         </form>
     </section>
+
+    <div id="tn-confirm-modal" class="tn-confirm-modal" aria-hidden="true">
+        <div class="tn-confirm-backdrop" data-close="true"></div>
+        <div class="tn-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="tn-confirm-title" aria-describedby="tn-confirm-message">
+            <h4 id="tn-confirm-title">Please confirm</h4>
+            <p id="tn-confirm-message">Are you sure?</p>
+            <div class="tn-confirm-actions">
+                <button type="button" id="tn-confirm-ok" class="tn-primary-btn">Yes</button>
+                <button type="button" id="tn-confirm-cancel" class="tn-outline-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <section class="tn-main-grid">
         <article class="tn-panel tn-chart-panel">
@@ -235,17 +259,38 @@
     <script>
         (function () {
             const timeframeContainer = document.getElementById('tn-timeframe');
-            const viewmodeContainer = document.getElementById('tn-viewmode');
             const chart = document.getElementById('tn-hours-chart');
             const totalHours = document.getElementById('tn-total-hours');
             const overtime = document.getElementById('tn-overtime');
             const breaks = document.getElementById('tn-breaks');
+            const confirmModal = document.getElementById('tn-confirm-modal');
+            const confirmMessage = document.getElementById('tn-confirm-message');
+            const confirmOk = document.getElementById('tn-confirm-ok');
+            const confirmCancel = document.getElementById('tn-confirm-cancel');
+            const entryTypeInput = document.getElementById('tn-entryType');
+            const clockForm = document.querySelector('.tn-clock-actions');
             const dayWorked = @Model.TotalWorkedHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
             const weekWorked = @Model.WeekTotalWorkedHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
             const dayOvertime = @Model.OvertimeHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
             const weekOvertime = @Model.WeekOvertimeHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
             const dayBreaks = @Model.TotalBreakHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
             const weekBreaks = @Model.WeekTotalBreakHours.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+            let pendingEntryType = null;
+
+            function closeConfirmModal() {
+                if (!confirmModal) return;
+                confirmModal.classList.remove('open');
+                confirmModal.setAttribute('aria-hidden', 'true');
+                pendingEntryType = null;
+            }
+
+            function openConfirmModal(entryType, message) {
+                if (!confirmModal || !confirmMessage) return;
+                pendingEntryType = entryType;
+                confirmMessage.textContent = message;
+                confirmModal.classList.add('open');
+                confirmModal.setAttribute('aria-hidden', 'false');
+            }
 
             function renderChart(frame) {
                 if (!chart) return;
@@ -276,8 +321,46 @@
             }
 
             togglePills(timeframeContainer, (btn) => renderChart(btn.dataset.frame || 'day'));
-            togglePills(viewmodeContainer, () => {});
             renderChart('day');
+
+            document.querySelectorAll('.tn-confirm-trigger').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const entry = button.getAttribute('data-entry');
+                    const message = button.getAttribute('data-message') || 'Are you sure?';
+                    if (!entry) return;
+                    openConfirmModal(entry, message);
+                });
+            });
+
+            if (confirmOk) {
+                confirmOk.addEventListener('click', () => {
+                    if (!pendingEntryType || !entryTypeInput || !clockForm) {
+                        closeConfirmModal();
+                        return;
+                    }
+                    entryTypeInput.value = pendingEntryType;
+                    clockForm.submit();
+                });
+            }
+
+            if (confirmCancel) {
+                confirmCancel.addEventListener('click', closeConfirmModal);
+            }
+
+            if (confirmModal) {
+                confirmModal.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target && target instanceof HTMLElement && target.dataset.close === 'true') {
+                        closeConfirmModal();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeConfirmModal();
+                }
+            });
 
             const clockEl = document.getElementById('tn-clock-time');
             const initialSeconds = Math.floor(@trackedSeconds);

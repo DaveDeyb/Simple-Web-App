@@ -75,7 +75,6 @@ namespace SimpleWebApp.Controllers
             var canAdd = await _service.CanAddEntryAsync(userId, entryType);
             if (!canAdd)
             {
-                TempData["Error"] = "Invalid time tracking sequence for your current state.";
                 return RedirectToAction("Index");
             }
 
