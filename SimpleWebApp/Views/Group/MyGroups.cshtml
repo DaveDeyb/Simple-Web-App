@@ -29,6 +29,13 @@
             </div>
         </div>
 
+        @if (Model.PendingCount > 0)
+        {
+            <div class="tn-pending-notice">
+                <strong>@Model.PendingCount pending request@(Model.PendingCount == 1 ? "" : "s")</strong> waiting for owner approval.
+            </div>
+        }
+
         @if (Model.Groups.Count == 0)
         {
             <div class="tn-empty-state-card">
@@ -56,13 +63,21 @@
             <div class="tn-groups-grid">
                 @foreach (var group in Model.Groups)
                 {
+                    var isPending = group.ApprovalStatus == SimpleWebApp.Models.Enums.GroupMemberApprovalStatus.Pending;
                     <div class="tn-group-card">
                         <div class="tn-group-card-header">
                             <div class="tn-group-card-title">
                                 <h3 class="tn-heading-md">@group.GroupName</h3>
-                                <span class="tn-badge tn-badge-@(group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
-                                    @group.Role
-                                </span>
+                                @if (isPending)
+                                {
+                                    <span class="tn-badge tn-badge-warning">Pending Approval</span>
+                                }
+                                else
+                                {
+                                    <span class="tn-badge tn-badge-@(group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Admin ? "primary" : group.Role == SimpleWebApp.Models.Enums.GroupMemberRole.Overseer ? "accent" : "secondary")">
+                                        @group.Role
+                                    </span>
+                                }
                             </div>
                         </div>
 
@@ -83,15 +98,24 @@
                         </div>
 
                         <div class="tn-group-card-actions">
-                            @if (Model.IsUserAdmin)
+                            @if (isPending)
                             {
-                                <a asp-controller="TimeEntries" asp-action="GroupRecords" asp-route-groupId="@group.GroupId" class="tn-btn tn-btn-primary tn-btn-full">
-                                    View Records
+                                <a asp-controller="Group" asp-action="WaitingApproval" asp-route-groupId="@group.GroupId" class="tn-btn tn-btn-outline tn-btn-full">
+                                    View Status
                                 </a>
                             }
-                            <a asp-controller="Group" asp-action="Details" asp-route-id="@group.GroupId" class="tn-btn tn-btn-outline tn-btn-full">
-                                View Details
-                            </a>
+                            else
+                            {
+                                @if (Model.IsUserAdmin)
+                                {
+                                    <a asp-controller="TimeEntries" asp-action="GroupRecords" asp-route-groupId="@group.GroupId" class="tn-btn tn-btn-primary tn-btn-full">
+                                        View Records
+                                    </a>
+                                }
+                                <a asp-controller="Group" asp-action="Details" asp-route-id="@group.GroupId" class="tn-btn tn-btn-outline tn-btn-full">
+                                    View Details
+                                </a>
+                            }
                         </div>
                     </div>
                 }
@@ -145,6 +169,15 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.85rem;
+}
+
+.tn-pending-notice {
+    border: 1px solid rgba(234, 179, 8, 0.38);
+    border-radius: 0.88rem;
+    padding: 0.72rem 0.9rem;
+    color: #854d0e;
+    background: rgba(254, 249, 195, 0.58);
+    font-size: 0.92rem;
 }
 
 .tn-btn-group {
@@ -349,6 +382,11 @@
 .tn-badge-secondary {
     background-color: rgba(122, 162, 230, 0.2);
     color: var(--tn-primary-strong);
+}
+
+.tn-badge-warning {
+    background-color: rgba(234, 179, 8, 0.18);
+    color: #854d0e;
 }
 
 /* Responsive Design */

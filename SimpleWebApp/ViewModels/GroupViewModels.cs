@@ -7,6 +7,7 @@ namespace SimpleWebApp.ViewModels
         public List<MyGroupsViewModel> Groups { get; set; } = new();
         public bool IsUserAdmin { get; set; }
         public bool CanJoinGroup { get; set; } = true;
+        public int PendingCount { get; set; }
     }
 
     public class MyGroupsViewModel
@@ -15,6 +16,7 @@ namespace SimpleWebApp.ViewModels
         public string GroupName { get; set; } = string.Empty;
         public string GroupDescription { get; set; } = string.Empty;
         public GroupMemberRole Role { get; set; }
+        public GroupMemberApprovalStatus ApprovalStatus { get; set; } = GroupMemberApprovalStatus.Pending;
         public string OwnerName { get; set; } = string.Empty;
         public int MemberCount { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -60,5 +62,12 @@ namespace SimpleWebApp.ViewModels
         public bool HasGroups { get; set; }
         public int GroupCount { get; set; }
         public bool IsUserAdmin { get; set; }
+    }
+
+    public class WaitingApprovalViewModel
+    {
+        public string GroupId { get; set; } = string.Empty;
+        public string GroupName { get; set; } = string.Empty;
+        public DateTime RequestedAt { get; set; }
     }
 }

@@ -26,7 +26,8 @@ namespace SimpleWebApp.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var userGroups = await _context.GroupMembers
-                .Where(gm => gm.UserId == userId && gm.ApprovalStatus == GroupMemberApprovalStatus.Approved)
+                .Where(gm => gm.UserId == userId &&
+                    (gm.ApprovalStatus == GroupMemberApprovalStatus.Approved || gm.ApprovalStatus == GroupMemberApprovalStatus.Pending))
                 .Include(gm => gm.Group)
                 .ThenInclude(g => g!.Owner)
                 .ToListAsync();
@@ -37,15 +38,18 @@ namespace SimpleWebApp.Controllers
                 GroupName = gm.Group!.Name,
                 GroupDescription = gm.Group!.Description,
                 Role = gm.Role,
+                ApprovalStatus = gm.ApprovalStatus,
                 OwnerName = GetDisplayName(gm.Group!.Owner),
                 MemberCount = gm.Group!.Members.Count,
                 CreatedAt = gm.Group!.CreatedAt
             }).ToList();
 
             var isAdmin = await IsCurrentUserAdminAsync();
+            var approvedGroupCount = groupList.Count(g => g.ApprovalStatus == GroupMemberApprovalStatus.Approved);
+            var pendingCount = groupList.Count(g => g.ApprovalStatus == GroupMemberApprovalStatus.Pending);
 
             // Non-admin users with an approved group should use the time dashboard directly.
-            if (!isAdmin && groupList.Count > 0)
+            if (!isAdmin && approvedGroupCount > 0)
             {
                 return RedirectToAction("Index", "TimeEntries");
             }
@@ -54,7 +58,8 @@ namespace SimpleWebApp.Controllers
             {
                 Groups = groupList,
                 IsUserAdmin = isAdmin,
-                CanJoinGroup = isAdmin || groupList.Count == 0
+                CanJoinGroup = isAdmin || approvedGroupCount == 0,
+                PendingCount = pendingCount
             };
 
             return View(pageModel);
@@ -206,8 +211,17 @@ namespace SimpleWebApp.Controllers
 
             if (existingMember != null)
             {
-                ModelState.AddModelError("inviteCode", "You are already a member of this group.");
-                return View();
+                if (existingMember.ApprovalStatus == GroupMemberApprovalStatus.Pending)
+                {
+                    return RedirectToAction(nameof(WaitingApproval), new { groupId = group.Id });
+                }
+
+                if (existingMember.ApprovalStatus == GroupMemberApprovalStatus.Rejected)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
+
+                return RedirectToAction(nameof(Details), new { id = group.Id });
             }
 
             isAdmin = isAdmin || User.HasClaim("IsAdmin", "true");
@@ -231,10 +245,48 @@ namespace SimpleWebApp.Controllers
 
             if (isAdmin)
             {
-                return RedirectToAction("PendingApprovals", new { groupId = group.Id });
+                return RedirectToAction(nameof(WaitingApproval), new { groupId = group.Id });
             }
 
             return RedirectToAction(nameof(Details), new { id = group.Id });
+        }
+
+        // GET: Group/WaitingApproval/groupId
+        public async Task<IActionResult> WaitingApproval(string groupId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var membership = await _context.GroupMembers
+                .Include(gm => gm.Group)
+                .FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+
+            if (membership == null)
+            {
+                return RedirectToAction("MyGroups");
+            }
+
+            if (membership.ApprovalStatus == GroupMemberApprovalStatus.Approved)
+            {
+                return RedirectToAction(nameof(Details), new { id = groupId });
+            }
+
+            if (membership.ApprovalStatus == GroupMemberApprovalStatus.Rejected)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            var viewModel = new WaitingApprovalViewModel
+            {
+                GroupId = membership.GroupId,
+                GroupName = membership.Group?.Name ?? "Group",
+                RequestedAt = membership.AddedAt
+            };
+
+            return View(viewModel);
         }
 
         // GET: Group/Details/5
@@ -257,6 +309,16 @@ namespace SimpleWebApp.Controllers
             if (userMembership == null)
             {
                 return Forbid();
+            }
+
+            if (userMembership.ApprovalStatus == GroupMemberApprovalStatus.Pending)
+            {
+                return RedirectToAction(nameof(WaitingApproval), new { groupId = id });
+            }
+
+            if (userMembership.ApprovalStatus == GroupMemberApprovalStatus.Rejected)
+            {
+                return RedirectToAction("AccessDenied", "Account");
             }
 
             var viewModel = new GroupDetailsViewModel
@@ -345,7 +407,9 @@ namespace SimpleWebApp.Controllers
                 return NotFound();
             }
 
-            _context.GroupMembers.Remove(member);
+            member.ApprovalStatus = GroupMemberApprovalStatus.Rejected;
+            member.ApprovedAt = DateTime.UtcNow;
+            member.ApprovedBy = userId;
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Details), new { id = groupId });
