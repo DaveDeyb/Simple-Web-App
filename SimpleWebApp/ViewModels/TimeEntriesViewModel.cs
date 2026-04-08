@@ -30,6 +30,15 @@ namespace SimpleWebApp.ViewModels
     {
         public string GroupId { get; set; } = string.Empty;
         public DateTime SelectedDate { get; set; } = DateTime.Today;
+        public string? SelectedUserId { get; set; }
+        public List<GroupMemberOptionViewModel> Members { get; set; } = new();
         public List<TimeEntry> TimeEntries { get; set; } = new();
+    }
+
+    public class GroupMemberOptionViewModel
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string FullName { get; set; } = "Unknown";
+        public string Email { get; set; } = string.Empty;
     }
 }

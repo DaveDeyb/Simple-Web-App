@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleWebApp.Data;
 using SimpleWebApp.Models;
+using SimpleWebApp.Models.Enums;
 using SimpleWebApp.ViewModels;
 
 namespace SimpleWebApp.Services
@@ -198,6 +199,23 @@ namespace SimpleWebApp.Services
             }
 
             return await baseQuery.OrderByDescending(e => e.Timestamp).ToListAsync();
+        }
+
+        public async Task<List<GroupMemberOptionViewModel>> GetApprovedGroupMembersAsync(string groupId)
+        {
+            return await _context.GroupMembers
+                .Include(gm => gm.User)
+                .Where(gm => gm.GroupId == groupId
+                    && gm.ApprovalStatus == GroupMemberApprovalStatus.Approved
+                    && gm.Role == GroupMemberRole.User)
+                .Select(gm => new GroupMemberOptionViewModel
+                {
+                    UserId = gm.UserId,
+                    FullName = string.IsNullOrWhiteSpace(gm.User!.FullName) ? "Unknown" : gm.User.FullName,
+                    Email = gm.User!.Email ?? string.Empty
+                })
+                .OrderBy(m => m.FullName)
+                .ToListAsync();
         }
     }
 }

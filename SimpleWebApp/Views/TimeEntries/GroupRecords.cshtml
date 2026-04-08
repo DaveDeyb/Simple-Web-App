@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Group Time Entries";
+    ViewData["FullWidth"] = true;
 }
 
 <section class="tn-group-records-wrap">
@@ -28,12 +29,74 @@
             </form>
         </div>
 
-        <!-- Records Table -->
-        <div class="tn-records-section">
-            @if (Model.TimeEntries.Count == 0)
+        <div class="tn-records-layout">
+        <div class="tn-records-section tn-user-list-panel">
+            <div class="tn-member-picker-top">
+                <div class="tn-member-picker-head">
+                    <h2 class="tn-member-picker-title">Select a User</h2>
+                </div>
+                <div class="tn-user-search-wrap">
+                    <label for="userSearch" class="tn-user-search-label">Search a User</label>
+                    <input id="userSearch" type="text" class="tn-user-search-input" placeholder="" autocomplete="off" />
+                    <label for="userSort" class="tn-user-search-label tn-user-sort-label">Sort by name</label>
+                    <select id="userSort" class="tn-user-sort-select">
+                        <option value="az">A-Z</option>
+                        <option value="za">Z-A</option>
+                    </select>
+                </div>
+            </div>
+
+            @if (Model.Members.Count == 0)
             {
                 <div class="tn-empty-state">
-                    <p>No time entries recorded for this date.</p>
+                    <p>No regular users in this group yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="tn-user-list-wrap">
+                    <ul class="tn-member-list">
+                    @foreach (var member in Model.Members)
+                    {
+                        var isActive = Model.SelectedUserId == member.UserId;
+                        <li data-user-name="@member.FullName.ToLowerInvariant()">
+                            <a class="tn-member-list-item @(isActive ? "is-active" : string.Empty)"
+                               asp-action="GroupRecords"
+                               asp-controller="TimeEntries"
+                               asp-route-groupId="@Model.GroupId"
+                               asp-route-date="@Model.SelectedDate.ToString("yyyy-MM-dd")"
+                               asp-route-selectedUserId="@member.UserId">
+                                <span class="tn-member-list-name">@member.FullName</span>
+                                <span class="tn-member-list-email">@member.Email</span>
+                                <span class="tn-member-list-arrow">View</span>
+                            </a>
+                        </li>
+                    }
+                    </ul>
+                    <div id="userSearchEmpty" class="tn-user-search-empty" hidden>
+                        No users match your search.
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Records Table -->
+        <div class="tn-records-section tn-logs-panel">
+            <div class="tn-member-picker-head">
+                <h2 class="tn-member-picker-title">User Logs</h2>
+                <p class="tn-text-muted">Logs are shown only after selecting a user from the list.</p>
+            </div>
+
+            @if (string.IsNullOrWhiteSpace(Model.SelectedUserId))
+            {
+                <div class="tn-empty-state">
+                    <p>Select a user from the list to view logs.</p>
+                </div>
+            }
+            else if (Model.TimeEntries.Count == 0)
+            {
+                <div class="tn-empty-state">
+                    <p>No time entries recorded for this member on this date.</p>
                 </div>
             }
             else
@@ -75,19 +138,21 @@
                 </div>
             }
         </div>
+        </div>
     </div>
 </section>
 
 <style>
 .tn-group-records-wrap {
     min-height: calc(100vh - 126px);
-    padding: clamp(1rem, 2.2vw, 1.8rem);
+    padding: clamp(0.75rem, 1.1vw, 1.1rem);
     background: var(--tn-bg);
 }
 
 .tn-group-records-inner {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: none;
+    width: 100%;
+    margin: 0;
     display: grid;
     gap: 1.5rem;
 }
@@ -201,6 +266,164 @@
         linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 250, 255, 0.88));
     box-shadow: 0 14px 28px rgba(31, 83, 171, 0.09);
     backdrop-filter: blur(4px);
+}
+
+.tn-records-layout {
+    display: grid;
+    grid-template-columns: minmax(420px, 480px) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.tn-user-list-panel,
+.tn-logs-panel {
+    min-height: 100%;
+}
+
+.tn-user-list-panel {
+    width: 100%;
+}
+
+.tn-logs-panel {
+    width: 100%;
+}
+
+.tn-member-picker-top {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.tn-member-picker-head {
+    margin-bottom: 0;
+}
+
+.tn-member-picker-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--tn-text);
+}
+
+.tn-member-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tn-user-list-wrap {
+    border: 1px solid rgba(122, 162, 230, 0.28);
+    border-radius: 0.8rem;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.tn-user-search-wrap {
+    align-self: stretch;
+}
+
+.tn-user-sort-label {
+    margin-top: 0.55rem;
+}
+
+.tn-user-search-label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--tn-muted);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.tn-user-search-input {
+    width: 100%;
+    border: 1px solid rgba(122, 162, 230, 0.32);
+    border-radius: 0.55rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--tn-text);
+    font-size: 0.88rem;
+    padding: 0.45rem 0.65rem;
+    outline: none;
+}
+
+.tn-user-search-input:focus {
+    border-color: rgba(47, 111, 255, 0.55);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.tn-user-sort-select {
+    width: 100%;
+    border: 1px solid rgba(122, 162, 230, 0.32);
+    border-radius: 0.55rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--tn-text);
+    font-size: 0.88rem;
+    padding: 0.45rem 0.65rem;
+    outline: none;
+}
+
+.tn-user-sort-select:focus {
+    border-color: rgba(47, 111, 255, 0.55);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.tn-user-search-empty {
+    padding: 0.85rem 1rem;
+    color: var(--tn-muted);
+    font-size: 0.86rem;
+}
+
+.tn-member-list-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.82rem 1rem;
+    border-bottom: 1px solid rgba(122, 162, 230, 0.2);
+    text-decoration: none;
+    background: transparent;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.tn-member-list-item:hover {
+    background: rgba(245, 250, 255, 0.94);
+}
+
+.tn-member-list-item.is-active {
+    background: rgba(236, 245, 255, 0.95);
+    box-shadow: inset 3px 0 0 rgba(47, 111, 255, 0.9);
+}
+
+.tn-member-list li:last-child .tn-member-list-item {
+    border-bottom: none;
+}
+
+.tn-member-list-name {
+    font-weight: 700;
+    color: var(--tn-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tn-member-list-email {
+    font-size: 0.82rem;
+    color: var(--tn-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tn-member-list-arrow {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--tn-primary);
+    background: rgba(47, 111, 255, 0.12);
+    border: 1px solid rgba(47, 111, 255, 0.24);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
 }
 
 .tn-table-container {
@@ -356,6 +579,20 @@
         padding: 1rem;
     }
 
+    .tn-records-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    .tn-user-list-panel,
+    .tn-logs-panel {
+        order: initial;
+    }
+
+    .tn-member-picker-top {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .tn-filter-form {
         flex-direction: column;
         align-items: stretch;
@@ -368,6 +605,15 @@
 
     .tn-filter-input {
         width: 100%;
+    }
+
+    .tn-member-list-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+    }
+
+    .tn-member-list-arrow {
+        margin-top: 0.2rem;
     }
 
     .tn-member-cell {
@@ -385,3 +631,64 @@
     }
 }
 </style>
+
+@section Scripts {
+<script>
+(() => {
+    const searchInput = document.getElementById('userSearch');
+    const sortSelect = document.getElementById('userSort');
+    const emptyMessage = document.getElementById('userSearchEmpty');
+    if (!searchInput) {
+        return;
+    }
+
+    const items = Array.from(document.querySelectorAll('.tn-member-list > li'));
+    const list = document.querySelector('.tn-member-list');
+
+    const normalize = (value) => (value || '').trim().toLowerCase();
+
+    const sortItems = () => {
+        if (!list || !sortSelect) {
+            return;
+        }
+
+        const direction = sortSelect.value;
+        const sorted = [...items].sort((left, right) => {
+            const leftName = normalize(left.dataset.userName);
+            const rightName = normalize(right.dataset.userName);
+            return direction === 'za'
+                ? rightName.localeCompare(leftName)
+                : leftName.localeCompare(rightName);
+        });
+
+        sorted.forEach((item) => list.appendChild(item));
+    };
+
+    const applyFilter = () => {
+        const term = normalize(searchInput.value);
+        let visibleCount = 0;
+
+        items.forEach((item) => {
+            const name = normalize(item.dataset.userName);
+            const visible = term.length === 0 || name.includes(term);
+            item.hidden = !visible;
+            if (visible) {
+                visibleCount += 1;
+            }
+        });
+
+        if (emptyMessage) {
+            emptyMessage.hidden = visibleCount !== 0;
+        }
+    };
+
+    sortSelect?.addEventListener('change', () => {
+        sortItems();
+        applyFilter();
+    });
+    searchInput.addEventListener('input', applyFilter);
+    sortItems();
+    applyFilter();
+})();
+</script>
+}

@@ -282,6 +282,17 @@ body {
   padding: 0;
 }
 
+body.tn-group-records-page .tn-app-main {
+  max-width: none;
+  margin: 0;
+  padding: 0.5rem 0.75rem 0;
+}
+
+body.tn-group-records-page .tn-content-wrap {
+  max-width: none;
+  width: 100%;
+}
+
 .tn-content-wrap {
   width: 100%;
 }

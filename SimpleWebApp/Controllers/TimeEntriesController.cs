@@ -83,7 +83,7 @@ namespace SimpleWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GroupRecords(string groupId, DateTime? date)
+        public async Task<IActionResult> GroupRecords(string groupId, DateTime? date, string? selectedUserId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -91,12 +91,25 @@ namespace SimpleWebApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            ViewData["FullWidth"] = true;
+            ViewData["BodyClass"] = "tn-group-records-page";
+
             var selectedDate = date ?? DateTime.Today;
+            var members = await _service.GetApprovedGroupMembersAsync(groupId);
+            var hasSelectedMember = !string.IsNullOrWhiteSpace(selectedUserId)
+                && members.Any(m => m.UserId == selectedUserId);
+
             var model = new GroupTimeEntriesViewModel
             {
                 GroupId = groupId,
                 SelectedDate = selectedDate,
-                TimeEntries = await _service.GetGroupTimeEntriesAsync(groupId, selectedDate)
+                SelectedUserId = hasSelectedMember ? selectedUserId : null,
+                Members = members,
+                TimeEntries = hasSelectedMember
+                    ? (await _service.GetGroupTimeEntriesAsync(groupId, selectedDate))
+                        .Where(e => e.UserId == selectedUserId)
+                        .ToList()
+                    : new List<TimeEntry>()
             };
 
             return View(model);
