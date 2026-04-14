@@ -22,20 +22,20 @@
 
                 <div>
                     <label asp-for="FullName" class="form-label"></label>
-                    <input asp-for="FullName" class="form-control tn-input" placeholder="John Doe" />
+                    <input asp-for="FullName" class="form-control tn-input" placeholder="John Doe" maxlength="100" />
                     <span asp-validation-for="FullName" class="text-danger"></span>
                 </div>
 
                 <div>
                     <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control tn-input" placeholder="you@example.com" />
+                    <input asp-for="Email" class="form-control tn-input" placeholder="you@example.com" maxlength="254" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div>
                     <label asp-for="Password" class="form-label"></label>
                     <div class="tn-password-wrap">
-                        <input asp-for="Password" class="form-control tn-input tn-password-input" placeholder="Create a strong password" />
+                        <input asp-for="Password" class="form-control tn-input tn-password-input" placeholder="Create a strong password" maxlength="128" />
                         <button type="button" class="tn-password-toggle" data-target="Password" aria-label="Show password" aria-pressed="false">
                             <span class="tn-eye-icon tn-eye-open" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -59,7 +59,7 @@
                 <div>
                     <label asp-for="ConfirmPassword" class="form-label"></label>
                     <div class="tn-password-wrap">
-                        <input asp-for="ConfirmPassword" class="form-control tn-input tn-password-input" placeholder="Confirm your password" />
+                        <input asp-for="ConfirmPassword" class="form-control tn-input tn-password-input" placeholder="Confirm your password" maxlength="128" />
                         <button type="button" class="tn-password-toggle" data-target="ConfirmPassword" aria-label="Show password" aria-pressed="false">
                             <span class="tn-eye-icon tn-eye-open" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
