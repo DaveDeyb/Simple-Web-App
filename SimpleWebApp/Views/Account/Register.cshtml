@@ -22,7 +22,7 @@
 
                 <div>
                     <label asp-for="FullName" class="form-label"></label>
-                    <input asp-for="FullName" class="form-control tn-input" placeholder="John Doe" maxlength="40" />
+                    <input asp-for="FullName" class="form-control tn-input" placeholder="John Doe" maxlength="40" pattern="^[A-Za-z0-9' -]+$" />
                     <span asp-validation-for="FullName" class="text-danger"></span>
                 </div>
 
@@ -148,6 +148,13 @@
 .tn-password-toggle.is-revealed .tn-eye-closed {
     display: inline-flex;
 }
+
+#FullName.tn-live-invalid,
+#FullName.input-validation-error,
+#FullName:not(:placeholder-shown):invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.18rem rgba(220, 53, 69, 0.12);
+}
 </style>
 
 @section Scripts {
@@ -157,6 +164,7 @@
             const form = document.querySelector('.tn-auth-form');
             const termsCheckbox = document.querySelector('input[name="AgreeToTerms"]');
             const termsLabel = document.getElementById('termsLabel');
+            const fullNameInput = document.getElementById('FullName');
             let submitAttempted = false;
 
             function updateTermsValidation() {
@@ -170,10 +178,26 @@
             // Update on change
             termsCheckbox.addEventListener('change', updateTermsValidation);
 
+            function updateFullNameLiveValidation() {
+                if (!fullNameInput) {
+                    return;
+                }
+
+                const hasValue = fullNameInput.value.length > 0;
+                const validFullName = /^[a-zA-Z0-9 '\-]+$/.test(fullNameInput.value);
+                fullNameInput.classList.toggle('tn-live-invalid', hasValue && !validFullName);
+            }
+
+            if (fullNameInput) {
+                fullNameInput.addEventListener('input', updateFullNameLiveValidation);
+                fullNameInput.addEventListener('blur', updateFullNameLiveValidation);
+            }
+
             // Validate on form submission
             form.addEventListener('submit', function (e) {
                 submitAttempted = true;
                 updateTermsValidation();
+                updateFullNameLiveValidation();
                 if (!termsCheckbox.checked) {
                     e.preventDefault();
                     return false;
