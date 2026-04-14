@@ -6,13 +6,13 @@ namespace SimpleWebApp.ViewModels
     {
         [Required]
         [Display(Name = "Full name")]
-        [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters.")]
+        [StringLength(40, ErrorMessage = "Full name cannot exceed 40 characters.")]
+        [RegularExpression(@"^[a-zA-Z0-9 '\-]+$", ErrorMessage = "Full name can only contain letters, numbers, spaces, hyphens, and apostrophes.")]
         public string FullName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        [StringLength(254, ErrorMessage = "Email cannot exceed 254 characters.")]
-        [RegularExpression(@".*\.com$", ErrorMessage = "Email must end with .com")]
+        [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters.")]
         public string Email { get; set; } = string.Empty;
 
         [Required]
@@ -39,8 +39,7 @@ namespace SimpleWebApp.ViewModels
     {
         [Required]
         [EmailAddress]
-        [StringLength(254, ErrorMessage = "Email cannot exceed 254 characters.")]
-        [RegularExpression(@".*\.com$", ErrorMessage = "Email must end with .com")]
+        [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters.")]
         public string Email { get; set; } = string.Empty;
 
         [Required]
