@@ -26,6 +26,9 @@ namespace SimpleWebApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            ViewData["FullWidth"] = true;
+            ViewData["BodyClass"] = "tn-dashboard-page";
+
             var selectedDate = date ?? DateTime.Today;
             var entries = await _service.GetEntriesForUserAsync(userId, selectedDate);
             var (totalWorked, totalBreak) = await _service.GetTotalsForUserAsync(userId, selectedDate);

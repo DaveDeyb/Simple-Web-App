@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Dashboard";
+    ViewData["FullWidth"] = true;
+    ViewData["BodyClass"] = "tn-dashboard-page";
 
     var ascendingEntries = Model.Entries.OrderBy(e => e.Timestamp).ToList();
     var latestEntry = Model.Entries.OrderByDescending(e => e.Timestamp).FirstOrDefault();
