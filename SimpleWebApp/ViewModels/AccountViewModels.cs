@@ -44,8 +44,6 @@ namespace SimpleWebApp.ViewModels
 
         [Required]
         [DataType(DataType.Password)]
-        [StringLength(128, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 128 characters.")]
-        [RegularExpression(@"^(?=.*[a-zA-Z])(?=.*[0-9]).{8,128}$", ErrorMessage = "Password must contain at least one letter and one number.")]
         public string Password { get; set; } = string.Empty;
 
         [Display(Name = "Remember me")]
